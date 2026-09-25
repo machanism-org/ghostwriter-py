@@ -3,13 +3,10 @@ This is a python wraper of ghostwriter cli.
 
 - Analyze `machai.gw` python package and detailed describe it in this readme file.
 - no maven-central shields required.
+- JAVA_HOME should be defined.
 -->
 
 # Ghostwriter Python Wrapper (`gw-python`)
-
-`gw-python` is a Python wrapper for the Machai Ghostwriter command-line processor. It
-bundles the Ghostwriter Java runtime and exposes it through the `machai.gw` package,
-using JPype to start an embedded JVM and invoke the Java implementation from Python.
 
 ## Cloning and Getting Started
 
@@ -24,6 +21,10 @@ To clone and set up this project locally, follow these steps:
    ```bash
    mvn clean install
    ```
+
+`gw-python` is a Python wrapper for the Machai Ghostwriter command-line processor. It
+bundles the Ghostwriter Java runtime and exposes it through the `machai.gw` package,
+using JPype to start an embedded JVM and invoke the Java implementation from Python.
 
 ## Introduction
 
@@ -76,9 +77,11 @@ load it without additional class-path configuration.
 ## Installation
 
 Install the Python package in an environment with Python 3.9 or newer, JPype1, and a
-compatible Java runtime:
+compatible Java runtime. Define `JAVA_HOME` to point to the JDK or JVM installation
+before using the wrapper:
 
 ```bash
+set JAVA_HOME=C:\\Path\\To\\Your\\JDK
 python -m pip install .
 ```
 
@@ -121,8 +124,8 @@ The assembly configuration places the resulting runtime archive in the Python pa
 - **Python 3.9 or newer** — the wrapper uses the built-in generic list annotation syntax
   (`list[str]`).
 - **JPype1** (`jpype1>=1.4.0`).
-- **A supported Java runtime** — a JVM accessible through
-  `jpype.getDefaultJVMPath()`.
+- **A supported Java runtime** — define `JAVA_HOME` and ensure a JVM is accessible
+  through `jpype.getDefaultJVMPath()`.
 
 ## License
 

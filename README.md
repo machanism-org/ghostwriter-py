@@ -2,6 +2,8 @@
 
 # Ghostwriter Python Wrapper (`gw-python`)
 
+[![Maven Central](https://img.shields.io/maven-central/v/org.machanism.machai/ghostwriter-py.svg)](https://central.sonatype.com/artifact/org.machanism.machai/ghostwriter-py)
+
 ## Cloning and Getting Started
 
 To clone and set up this project locally, follow these steps:
@@ -23,15 +25,17 @@ embedded JVM and invoke the Java implementation directly from Python.
 
 ## Introduction
 
-The wrapper keeps the Java runtime artifact (`ghostwriter.jar`) next to the Python
-package and resolves it relative to the package installation directory. This means the
-consumer does not need to configure a class path manually — the wrapper discovers the
-bundled archive on its own.
+The wrapper keeps the Ghostwriter runtime archive next to the Python package and resolves
+its absolute path from the installed package location. Consumers therefore do not need to
+configure a Java class path manually. The public `gw` function accepts a list of
+command-line arguments, starts the JVM lazily on first use, invokes
+`org.machanism.machai.gw.processor.Ghostwriter.main`, and returns the Java result as a
+Python string.
 
-The public entry point is the `gw` function in `machai.gw.ghostwriter`. It accepts a
-list of command-line arguments, starts the JVM lazily on first use, invokes
-`org.machanism.machai.gw.processor.Ghostwriter.main`, and returns the result to the
-caller.
+The Java implementation remains responsible for Ghostwriter's command-line behavior;
+the Python layer provides packaging, JVM startup, and argument forwarding rather than
+reimplementing that behavior. The public entry point is the `gw` function in
+`machai.gw.ghostwriter`.
 
 ## The `machai.gw` Package
 
@@ -74,31 +78,24 @@ behavior of the underlying Ghostwriter CLI.
 
 ## Project Structure
 
-The project is composed of three cooperating layers:
-
-- **Python integration layer** — `machai.gw.ghostwriter` locates the packaged Java archive,
-  starts JPype with that archive on the JVM class path, and forwards arguments to
-  Ghostwriter.
-- **Java execution layer** — the bundled Ghostwriter processor
-  (`org.machanism.machai.gw.processor.Ghostwriter`) performs the command-line work and
-  returns its result to the Python caller.
-- **Build and packaging layer** — Maven assembles the Ghostwriter Java runtime artifact
-  directly into the Python package (`machai/gw/jars/ghostwriter.jar`) so the wrapper can
-  locate it without any additional configuration.
+The project has three cooperating layers. The Python packaging layer exposes the public
+API and locates the bundled runtime. The Java execution layer contains the Ghostwriter
+processor, which performs command-line processing and returns its result. The build layer
+assembles the Java runtime into the Python distribution, allowing the Python layer to
+load it without additional class-path configuration.
 
 ## Installation
 
-Install the Python package into an environment that has a compatible Java runtime and
-JPype available:
+Install the Python package into an environment that has Python 3.9 or newer and a
+compatible Java runtime:
 
 ```bash
-python -m pip install jpype1
 python -m pip install .
 ```
 
-The package expects the Ghostwriter archive to be available at
-`machai/gw/jars/ghostwriter.jar` inside the installed package. A Java runtime must
-therefore be installed and discoverable through `jpype.getDefaultJVMPath()`.
+The package declares `jpype1>=1.4.0` as a dependency. The Ghostwriter archive must be
+available at `machai/gw/jars/ghostwriter.jar` inside the installed package, and a Java
+runtime must be discoverable through `jpype.getDefaultJVMPath()`.
 
 ## Usage
 
