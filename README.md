@@ -2,6 +2,20 @@
 
 # Ghostwriter Python Wrapper (`gw-python`)
 
+## Cloning and Getting Started
+
+To clone and set up this project locally, follow these steps:
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/machanism-org/ghostwriter-py.git
+   cd ghostwriter-py
+   ```
+2. **Build the project using Maven:**
+   ```bash
+   mvn clean install
+   ```
+
 `gw-python` is a Python wrapper around the Machai **Ghostwriter** command-line
 processor. It packages the Ghostwriter Java application and exposes it through the
 `machai.gw` Python package, using [JPype](https://jpype.readthedocs.io/) to start an
@@ -14,10 +28,10 @@ package and resolves it relative to the package installation directory. This mea
 consumer does not need to configure a class path manually — the wrapper discovers the
 bundled archive on its own.
 
-The public entry point is the `gw` function. It accepts a list of command-line
-arguments, starts the JVM lazily on first use, invokes
-`org.machanism.machai.gw.processor.Ghostwriter.main`, prints the returned result, and
-returns it to the caller.
+The public entry point is the `gw` function in `machai.gw.ghostwriter`. It accepts a
+list of command-line arguments, starts the JVM lazily on first use, invokes
+`org.machanism.machai.gw.processor.Ghostwriter.main`, and returns the result to the
+caller.
 
 ## The `machai.gw` Package
 
@@ -28,24 +42,23 @@ machai.gw/
 └── machai/
     └── gw/
         ├── __init__.py          # Package marker (empty)
-        ├── gw.py                # Public wrapper API and JVM bootstrapping
+        ├── ghostwriter.py       # Public wrapper API and JVM bootstrapping
         └── jars/
             └── ghostwriter.jar  # Bundled Ghostwriter Java runtime artifact
 ```
 
-### `machai.gw.gw` module
+### `machai.gw.ghostwriter` module
 
-The module exposes two functions and resolves the bundled JAR at import time:
+The module exposes the wrapper function and resolves the bundled JAR at import time:
 
 | Symbol | Kind | Description |
 | --- | --- | --- |
-| `BASE_DIR` | Module constant | Absolute path to the directory containing `gw.py`, computed from `__file__`. |
+| `BASE_DIR` | Module constant | Absolute path to the directory containing `ghostwriter.py`, computed from `__file__`. |
 | `JAR_PATH` | Module constant | Absolute path to `jars/ghostwriter.jar`, resolved relative to `BASE_DIR`. |
-| `ensure_jvm()` | Function | Starts the JVM via JPype if it is not already running. The bundled `ghostwriter.jar` is placed on the JVM class path and `convertStrings=True` is enabled so Java strings are transparently converted to Python `str`. Calling it repeatedly is safe — it is a no-op once the JVM is started. |
-| `gw(args: list[str]) -> str` | Function | The primary API. It first calls `ensure_jvm()`, imports the Java class `org.machanism.machai.gw.processor.Ghostwriter`, calls its static `main(args)` method with the supplied argument list, prints the result, and returns it. |
+| `gw(args: list[str]) -> str` | Function | The primary API. It starts JPype if needed, places the bundled archive on the JVM class path with `convertStrings=True`, imports `org.machanism.machai.gw.processor.Ghostwriter`, invokes its static `main(args)` method, and returns the result. |
 
 The module is also runnable as a script. When executed directly
-(`python -m machai.gw.gw ...`), it forwards `sys.argv[1:]` to `gw()`, mirroring the
+(`python -m machai.gw.ghostwriter ...`), it forwards `sys.argv[1:]` to `gw()`, mirroring the
 behavior of the underlying Ghostwriter CLI.
 
 ### Design notes
@@ -63,7 +76,7 @@ behavior of the underlying Ghostwriter CLI.
 
 The project is composed of three cooperating layers:
 
-- **Python integration layer** — `machai.gw.gw` locates the packaged Java archive,
+- **Python integration layer** — `machai.gw.ghostwriter` locates the packaged Java archive,
   starts JPype with that archive on the JVM class path, and forwards arguments to
   Ghostwriter.
 - **Java execution layer** — the bundled Ghostwriter processor
@@ -93,7 +106,7 @@ Use the `gw` function with the same argument sequence you would pass to the Ghos
 CLI:
 
 ```python
-from machai.gw.gw import gw
+from machai.gw.ghostwriter import gw
 
 result = gw(["--help"])
 print(result)
@@ -103,7 +116,7 @@ The JVM is started only on the first call; later calls reuse it. The wrapper can
 invoked as a module script:
 
 ```bash
-python -m machai.gw.gw --help
+python -m machai.gw.ghostwriter --help
 ```
 
 ## Building
