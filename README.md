@@ -1,8 +1,8 @@
-<!-- @guidance: >>> ${guidances}/readme-content.md -->
+<!-- @guidance: >>> ${guidances}/readme-content.md
+- no img.shields.io/maven-central required.
+-->
 
 # Ghostwriter Python Wrapper (`gw-python`)
-
-[![Maven Central](https://img.shields.io/maven-central/v/org.machanism.machai/ghostwriter-py.svg)](https://central.sonatype.com/artifact/org.machanism.machai/ghostwriter-py)
 
 ## Cloning and Getting Started
 
@@ -87,9 +87,11 @@ load it without additional class-path configuration.
 ## Installation
 
 Install the Python package into an environment that has Python 3.9 or newer and a
-compatible Java runtime:
+compatible Java runtime. Define `JAVA_HOME` to point to the JDK or JVM installation
+before using the wrapper:
 
 ```bash
+set JAVA_HOME=C:\Path\To\Your\JDK
 python -m pip install .
 ```
 
@@ -134,8 +136,8 @@ project.
 - **Python 3.9 or newer** — the wrapper uses the built-in generic list annotation syntax
   (`list[str]`).
 - **JPype1** (`jpype1>=1.4.0`).
-- **A supported Java runtime** — a JVM accessible through
-  `jpype.getDefaultJVMPath()`.
+- **A supported Java runtime** — define `JAVA_HOME` and ensure a JVM is accessible
+  through `jpype.getDefaultJVMPath()`.
 
 ## License
 
