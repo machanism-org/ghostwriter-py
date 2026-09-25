@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "machai.gw"
+version = "1.4.2"
+description = "Python wrapper for Ghostwriter"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "jpype1>=1.4.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["machai/gw"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"machai/gw/jars/ghostwriter.jar" = "machai/gw/jars/ghostwriter.jar"
