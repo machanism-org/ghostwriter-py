@@ -7,8 +7,9 @@
 		<artifactId>machai</artifactId>
 		<version>1.4.2-SNAPSHOT</version>
 	</parent>
-	<packaging>pom</packaging>
-	<artifactId>gw-python</artifactId>
+	
+	<artifactId>ghostwriter-py</artifactId>
+	<name>Ghostwriter-Py</name>
 
 	<!-- @guidance: Summarize the `src/site/markdown/index.md` introduction
 	section and put this conten to the `description` tag.  -->
@@ -21,6 +22,11 @@
 		an embedded JVM (via JPype) on first use, invokes
 		org.machanism.machai.gw.processor.Ghostwriter.main, prints the returned
 		result, and returns it to the caller.</description>
+
+	<properties>
+		<maven.compiler.release>17</maven.compiler.release>
+		<skipPublishing>true</skipPublishing>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -72,4 +78,24 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>
+			scm:git:https://github.com/machanism-org/ghostwriter-py</connection>
+		<developerConnection>
+			scm:git:https://github.com/machanism-org/ghostwriter-py</developerConnection>
+		<url>https://github.com/machanism-org/ghostwriter-py</url>
+	</scm>
+
+	<issueManagement>
+		<url>https://github.com/machanism-org/bindex-mcp-server/issues</url>
+	</issueManagement>
 </project>
