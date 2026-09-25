@@ -1,0 +1,75 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.machanism.machai</groupId>
+		<artifactId>machai</artifactId>
+		<version>1.4.2-SNAPSHOT</version>
+	</parent>
+	<packaging>pom</packaging>
+	<artifactId>gw-python</artifactId>
+
+	<!-- @guidance: Summarize the `src/site/markdown/index.md` introduction
+	section and put this conten to the `description` tag.  -->
+	<description>Python wrapper around the Machai Ghostwriter command-line
+		processor. It keeps the Ghostwriter Java runtime artifact
+		(ghostwriter.jar) next to the machai.gw Python package and resolves it
+		relative to the package installation directory, so consumers do not need
+		to configure a class path manually. The public entry point is the gw
+		function, which accepts a list of command-line arguments, lazily starts
+		an embedded JVM (via JPype) on first use, invokes
+		org.machanism.machai.gw.processor.Ghostwriter.main, prints the returned
+		result, and returns it to the caller.</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.machanism.machai</groupId>
+			<artifactId>ghostwriter</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.machanism.machai</groupId>
+			<artifactId>bindex-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>build-artifact</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>ghostwriter</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>
+									src/assembly/assembly-jar.xml</descriptor>
+							</descriptors>
+							<outputDirectory>machai.gw/machai/gw/jars</outputDirectory>
+							<archive>
+								<manifest>
+									<mainClass>
+										org.machanism.machai.gw.processor.Ghostwriter</mainClass>
+								</manifest>
+								<manifestEntries>
+									<Class-Path>
+										${plugins-class-path}</Class-Path>
+									<Implementation-Version>
+										${project.version}</Implementation-Version>
+								</manifestEntries>
+							</archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
