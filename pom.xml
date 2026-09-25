@@ -59,7 +59,7 @@
 								<descriptor>
 									src/assembly/assembly-jar.xml</descriptor>
 							</descriptors>
-							<outputDirectory>machai.gw/machai/gw/jars</outputDirectory>
+							<outputDirectory>mgw/jars</outputDirectory>
 							<archive>
 								<manifest>
 									<mainClass>

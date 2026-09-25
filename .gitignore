@@ -6,3 +6,6 @@
 /target
 /.settings
 /machai.gw/machai/gw/jars
+/machai.gw/dist
+/dist
+/mgw/jars
