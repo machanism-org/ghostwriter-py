@@ -1,6 +1,7 @@
 <!-- @guidance: 
 - This is the README.md file for the PyPI release. It should be concise and contain all the necessary information and follow best practices.
 - Add link to the project site: https://machai.machanism.org/ghostwriter-py/
+- License: Apache License, Version 2.0.
 -->
 
 # `mgw`
@@ -51,4 +52,4 @@ Arguments are forwarded directly to Ghostwriter. The Java Virtual Machine starts
 
 ## License
 
-See the project repository for licensing information.
+Apache License, Version 2.0. See the project repository for the full license text.
