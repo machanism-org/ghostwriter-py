@@ -5,9 +5,9 @@
 
 # Ghostwriter Python Wrapper (`mgw`)
 
-`mgw` is a Python wrapper around the Machai Ghostwriter command-line processor.
-It packages the Ghostwriter Java runtime and uses JPype to start an embedded JVM,
-forward command-line arguments, and return the Java processor's result.
+`mgw` is a Python wrapper for the Machai Ghostwriter command-line processor. It provides a Python API, an installed console command, and a module entry point while packaging the Java Ghostwriter runtime alongside the Python distribution. The wrapper locates the bundled runtime relative to the installed package and uses JPype to invoke it, so callers do not need to configure a Java class path manually.
+
+Project site: <https://machai.machanism.org/ghostwriter-py/>
 
 ## Cloning and Getting Started
 
@@ -23,78 +23,64 @@ To clone and set up this project locally, follow these steps:
    mvn clean install
    ```
 
-Project site: [Machai Ghostwriter Python project site](https://machai.machanism.org/ghostwriter-py/)
-
 ## Introduction
 
-The Python project under `src/main/python` contains the `mgw` package and its
-Hatch build configuration. It targets Python 3.9 or newer, declares
-`jpype1>=1.4.0`, and provides the `mgw` console entry point. The wheel includes
-`mgw/jars/ghostwriter.jar`, produced by the Maven build, as the Java runtime
-used by the wrapper.
+The project bridges a Python packaging and command-line experience with the Ghostwriter Java implementation. It lets Python applications and shell users invoke Ghostwriter with the same argument sequence while keeping the Java runtime self-contained in the installed package.
 
-The `mgw.__main__.gw` function accepts an optional `list[str]`. With no list, it
-forwards the process arguments after the executable name. On its first
-invocation it resolves the bundled runtime relative to the installed package,
-starts JPype with string conversion enabled, and invokes
-`org.machanism.machai.gw.processor.Ghostwriter.main`. Later calls reuse the
-running JVM; JPype does not support restarting a JVM after shutdown.
+The Python package targets Python 3.9 or newer and depends on `jpype1>=1.4.0`. Its public `gw` function accepts an optional `list[str]`; when no list is provided, it forwards the current process arguments after the executable name. On first use, the wrapper discovers the JVM, starts it with string conversion enabled, adds the bundled Ghostwriter runtime to the class path, and invokes `org.machanism.machai.gw.processor.Ghostwriter.main`. Subsequent calls reuse the same JVM because JPype does not support restarting a JVM after shutdown.
 
-The package initializer is intended to expose `gw` lazily, while the module
-entry point provides JVM startup and argument forwarding. The installed console
-script calls `mgw.__main__.gw` directly.
-
-## The `mgw` Package
-
-The Python distribution contains the `mgw` package and the bundled runtime JAR
-in its `jars` resource directory.
-
-| Symbol | Kind | Description |
-| --- | --- | --- |
-| `mgw.__main__.gw(args: list[str] | None = None) -> str` | Function | Starts JPype if necessary, places the bundled archive on the JVM class path, invokes the Java processor, and returns its result. With no argument, it forwards `sys.argv[1:]`. |
-| `mgw.__main__.BASE_DIR` | Module constant | Absolute path to the directory containing the installed Python package. |
-| `mgw.__main__.JAR_PATH` | Module constant | Absolute path to the bundled `jars/ghostwriter.jar`, resolved relative to `BASE_DIR`. |
-
-### Runtime behavior
-
-- **Lazy JVM startup.** The JVM is created only when `gw()` is first called and
-  later calls reuse it.
-- **Self-contained artifact resolution.** The archive path is derived from the
-  installed package location, independent of the current working directory.
-- **Transparent string conversion.** JPype is started with `convertStrings=True`,
-  making the Java result available as a native Python `str`.
-- **Direct argument forwarding.** The supplied argument list is passed to the
-  Java entry point without Python-side command-line parsing.
+The package initializer exposes `gw` lazily, while the module implementation handles argument forwarding, JVM startup, runtime resolution, and result handling. The Maven build assembles the Java runtime into the Python package, and Hatchling builds the Python source distribution and wheel with that runtime included.
 
 ## Project Structure
 
-The project has three cooperating layers. The Python packaging layer installs
-the `mgw` console entry point and locates the bundled runtime. The Java execution
-layer contains the Ghostwriter processor, which performs command-line processing
-and returns its result. The Maven build layer assembles the Java runtime into the
-Python distribution, allowing the Python layer to load it without additional
-class-path configuration. No diagram image is included because the repository
-does not contain the referenced visual resource.
+The project consists of three cooperating layers:
 
-## Installation
+- The **Python package layer** provides the public API and command-line entry points, resolves the embedded runtime relative to the installation, and forwards arguments.
+- The **Java execution layer** supplies the Ghostwriter processor that performs the requested command-line work and returns its result.
+- The **build and packaging layer** assembles the Java runtime and includes it in the Python distribution, allowing users to install one package rather than manage a separate class path.
 
-Install the Python package in an environment with Python 3.9 or newer, JPype1,
-and a compatible Java runtime. **`JAVA_HOME` must be defined** and should point
-to the JDK or JVM installation before using the wrapper:
+The Python API delegates lazily to the JVM bridge. The bridge starts the Java runtime through JPype, adds the bundled Ghostwriter runtime to the class path, and forwards the arguments to the Java processor. CLI users can reach the same bridge through either the installed command or the Python module.
+
+## Installation and Prerequisites
+
+Use Python 3.9 or newer, a Java installation supported by JPype, and a working Python package installer. `JAVA_HOME` must be defined before running the wrapper and should point to a JDK or JVM installation. On Windows PowerShell, for example:
 
 ```powershell
 $env:JAVA_HOME = "C:\Path\To\Your\JDK"
-python -m pip install .
+$env:Path = "$env:JAVA_HOME\bin;$env:Path"
+python -m pip install mgw
 ```
 
-The package declares `jpype1>=1.4.0` as a dependency. A JVM must be discoverable
-through `jpype.getDefaultJVMPath()`, and the bundled Ghostwriter archive must be
-present in the installed package's `jars` resource directory.
+For a local checkout, install the package after building the Java runtime:
+
+```powershell
+mvn clean package -Prelease
+python -m pip install .\src\main\python
+```
+
+The package declares JPype as a dependency. JPype must be able to discover the JVM at `jpype.getDefaultJVMPath()`, and the installed package must contain the bundled Ghostwriter runtime.
 
 ## Usage
 
-Import `gw` from the module entry point and pass the same argument sequence you
-would pass to the Ghostwriter CLI:
+### Console command
+
+Pass Ghostwriter arguments directly to the installed `mgw` command:
+
+```powershell
+mgw --help
+```
+
+### Python module
+
+The package can also be run as a module:
+
+```powershell
+python -m mgw --help
+```
+
+### Python API
+
+Import `gw` and pass the argument list intended for Ghostwriter:
 
 ```python
 from mgw.__main__ import gw
@@ -103,52 +89,28 @@ result = gw(["--help"])
 print(result)
 ```
 
-The wrapper can also be invoked through the installed command:
-
-```bash
-mgw --help
-```
-
-Or run the package as a module:
-
-```bash
-python -m mgw --help
-```
-
-Arguments are forwarded directly to Ghostwriter without Python-side command-line
-parsing. The JVM starts on the first call and is reused by later calls in the
-same process.
+Arguments are forwarded without Python-side command-line parsing. The JVM starts lazily on the first call and is reused by later calls in the same process. The function returns the result produced by the Java processor as a Python string.
 
 ## Building
 
-Build the distributable Java runtime archive with Maven from the project root:
+From the project root, assemble the Java runtime and build the Python artifacts:
 
-```bash
-mvn clean package
-```
-
-Then build the Python source distribution and wheel from `src/main/python`:
-
-```bash
+```powershell
+mvn clean package -Prelease
+Set-Location src/main/python
 python -m pip install --upgrade build
-cd src/main/python
 python -m build
 ```
 
-The Maven assembly configuration places the runtime archive in the Python
-package's `jars` directory, and the Python wheel includes that archive as a
-forced resource. The Maven project depends on the Machai `ghostwriter` and
-`bindex-core` components at the version declared by the parent project.
+The generated source distribution and wheel are placed in the Python project's `dist` directory. The Maven release profile assembles the Java runtime, and the Python wheel configuration includes it with the package.
 
 ## Requirements
 
-- **Python 3.9 or newer** — the wrapper uses the built-in generic list annotation
-  syntax (`list[str]`).
-- **JPype1** (`jpype1>=1.4.0`).
-- **A supported Java runtime** with **`JAVA_HOME` defined** and accessible through
-  `jpype.getDefaultJVMPath()`.
-- **The Ghostwriter runtime archive**, included with the installed package.
+- Python 3.9 or newer.
+- `jpype1>=1.4.0`.
+- A supported Java runtime with `JAVA_HOME` defined.
+- The bundled Ghostwriter runtime, included in the installed package.
 
 ## License
 
-Refer to the repository's project metadata for licensing information.
+Apache License, Version 2.0.
