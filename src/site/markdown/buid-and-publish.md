@@ -7,6 +7,8 @@ You are an expert Python packaging and Java integration assistant. Using general
 4. Publishing to TestPyPI and Production PyPI (using twine and API tokens)
 5. Installing & Verifying from Repositories (handling index fallbacks for dependencies like jpype1)
 6. Execution Guidelines (how to invoke the tool via console script, python module, or code API, including JAVA_HOME handling)
+   - `python -m twine upload -r testpypi dist/*` 
+   - `pip install -U --no-cache-dir -i https://test.pypi.org/simple/ mgw`
 
 Requirements for the output:
 - Provide all terminal code blocks and automation steps specifically tailored for the **Windows Command Prompt (batch/cmd)** using standard `.bat` 
@@ -85,7 +87,7 @@ can provide the token through environment variables:
 ```bat
 set "TWINE_USERNAME=__token__"
 set "TWINE_PASSWORD=PASTE_TESTPYPI_API_TOKEN_HERE"
-python -m twine upload --repository testpypi dist/*
+python -m twine upload -r testpypi dist/*
 ```
 
 After confirming the TestPyPI installation works, upload the same version to PyPI:
@@ -107,7 +109,7 @@ index as an additional source for dependencies such as JPype1:
 ```bat
 python -m venv .venv-testpypi
 .venv-testpypi\Scripts\activate.bat
-python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mgw==1.4.2.1
+python -m pip install -U --no-cache-dir -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mgw==1.4.2.1
 python -c "from mgw import gw; print(gw(['--help']))"
 deactivate
 
