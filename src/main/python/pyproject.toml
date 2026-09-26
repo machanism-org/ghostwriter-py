@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project.scripts]
-machai-gw = "mgw.__main__:gw"
+mgw = "mgw.__main__:gw"
 
 [project]
 name = "mgw"

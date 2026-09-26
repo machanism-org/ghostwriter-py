@@ -7,7 +7,7 @@
 		<artifactId>machai</artifactId>
 		<version>1.4.2-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>ghostwriter-py</artifactId>
 	<name>Ghostwriter-Py</name>
 
@@ -44,6 +44,28 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>3.3.2</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<!-- Directory relative to the project root -->
+							<directory>src/main/python/dist</directory>
+							<includes>
+								<include>**/*</include>
+							</includes>
+						</fileset>
+						<fileset>
+							<directory>src/main/python/mgw/jars</directory>
+							<includes>
+								<include>**/*</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
@@ -59,7 +81,7 @@
 								<descriptor>
 									src/assembly/assembly-jar.xml</descriptor>
 							</descriptors>
-							<outputDirectory>mgw/jars</outputDirectory>
+							<outputDirectory>src/main/python/mgw/jars</outputDirectory>
 							<archive>
 								<manifest>
 									<mainClass>
@@ -73,6 +95,28 @@
 								</manifestEntries>
 							</archive>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.6.4</version>
+				<executions>
+					<execution>
+						<configuration>
+							<executable>python</executable>
+							<workingDirectory>src/main/python</workingDirectory>
+							<arguments>
+								<argument>-m</argument>
+								<argument>build</argument>
+							</arguments>
+						</configuration>
+						<id>python_build</id>
+						<phase>package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>

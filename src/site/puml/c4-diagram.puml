@@ -1,0 +1,39 @@
+' @guidance:
+' Create or update the C4 Component-level PlantUML diagram for the project.
+'
+' - If a C4 Component diagram already exists.
+' - If no diagram exists, generate a new one that clearly represents all major components, their responsibilities, and interactions within the project.
+' - Use PlantUML C4-PlantUML syntax and best practices for clarity and maintainability.
+' - Include only relevant components from `src/main/python` and external systems; remove or omit unnecessary details.
+' - Organize the diagram for readability, avoiding complexity and clutter.
+' - Add SHOW_LEGEND() at the end of the puml code.
+
+@startuml c4-ghostwriter-python
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+title Ghostwriter Python Wrapper - Component Diagram
+
+Person(cliUser, "CLI user", "Invokes Ghostwriter through the Python API, console script, or Python module")
+System_Ext(pythonRuntime, "Python runtime", "Executes the installed mgw package")
+System_Ext(javaRuntime, "Java runtime", "Provides the JVM used by JPype")
+
+Container_Boundary(mgwPackage, "mgw Python package") {
+    Component(publicApi, "Public API", "mgw/__init__.py", "Lazily exposes the gw function while avoiding eager loading of the implementation")
+    Component(wrapper, "JVM bridge and launcher", "mgw/__main__.py", "Accepts argument lists, resolves the bundled JAR, starts JPype when needed, and forwards calls")
+    Component(runtimeJar, "Bundled Ghostwriter runtime", "jars/ghostwriter.jar", "Packaged Java runtime containing the Ghostwriter processor")
+}
+
+System_Ext(ghostwriter, "Ghostwriter processor", "Java command-line implementation invoked from the bundled runtime")
+
+Rel(cliUser, publicApi, "Uses")
+Rel(cliUser, wrapper, "Invokes as mgw or python -m mgw")
+Rel(pythonRuntime, publicApi, "Loads")
+Rel(publicApi, wrapper, "Lazily delegates gw(args)")
+Rel(wrapper, javaRuntime, "Starts JVM via JPype")
+Rel(wrapper, runtimeJar, "Adds to JVM class path")
+Rel(javaRuntime, ghostwriter, "Loads and executes")
+Rel(wrapper, ghostwriter, "Forwards arguments and returns result")
+
+SHOW_LEGEND()
+@enduml

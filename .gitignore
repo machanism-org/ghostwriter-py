@@ -1,11 +1,6 @@
 /.project
-/.settings/org.eclipse.core.resources.prefs
-/.settings/org.eclipse.m2e.core.prefs
-/target/
+/.settings
 /.classpath
 /target
-/.settings
-/machai.gw/machai/gw/jars
-/machai.gw/dist
-/dist
-/mgw/jars
+/src/main/python/mgw/jars
+/src/main/python/dist
