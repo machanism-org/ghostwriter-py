@@ -9,13 +9,13 @@
 	</parent>
 
 	<artifactId>ghostwriter-py</artifactId>
-	<name>Ghostwriter-Py</name>
+	<name>Ghostwriter-Py (mgw)</name>
 
 	<!-- @guidance: Summarize the `src/site/markdown/index.md` introduction
 	section and put this conten to the `description` tag.  -->
 	<description>Python wrapper around the Machai Ghostwriter command-line
 		processor. It keeps the Ghostwriter Java runtime artifact
-		(ghostwriter.jar) next to the machai.gw Python package and resolves it
+		(ghostwriter.jar) next to the mgw python package and resolves it
 		relative to the package installation directory, so consumers do not need
 		to configure a class path manually. The public entry point is the gw
 		function, which accepts a list of command-line arguments, lazily starts
@@ -27,6 +27,93 @@
 		<maven.compiler.release>17</maven.compiler.release>
 		<skipPublishing>true</skipPublishing>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-clean-plugin</artifactId>
+						<version>3.3.2</version>
+						<configuration>
+							<filesets>
+								<fileset>
+									<!-- Directory relative to the project root -->
+									<directory>src/main/python/dist</directory>
+									<includes>
+										<include>**/*</include>
+									</includes>
+								</fileset>
+								<fileset>
+									<directory>src/main/python/mgw/jars</directory>
+									<includes>
+										<include>**/*</include>
+									</includes>
+								</fileset>
+							</filesets>
+						</configuration>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>build-artifact</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<finalName>ghostwriter</finalName>
+									<appendAssemblyId>false</appendAssemblyId>
+									<descriptors>
+										<descriptor>
+											src/assembly/assembly-jar.xml</descriptor>
+									</descriptors>
+									<outputDirectory>src/main/python/mgw/jars</outputDirectory>
+									<archive>
+										<manifest>
+											<mainClass>
+												org.machanism.machai.gw.processor.Ghostwriter</mainClass>
+										</manifest>
+										<manifestEntries>
+											<Class-Path>
+												${plugins-class-path}</Class-Path>
+											<Implementation-Version>
+												${project.version}</Implementation-Version>
+										</manifestEntries>
+									</archive>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>3.6.4</version>
+						<executions>
+							<execution>
+								<configuration>
+									<executable>python</executable>
+									<workingDirectory>src/main/python</workingDirectory>
+									<arguments>
+										<argument>-m</argument>
+										<argument>build</argument>
+									</arguments>
+								</configuration>
+								<id>python_build</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<dependency>
@@ -40,88 +127,6 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-clean-plugin</artifactId>
-				<version>3.3.2</version>
-				<configuration>
-					<filesets>
-						<fileset>
-							<!-- Directory relative to the project root -->
-							<directory>src/main/python/dist</directory>
-							<includes>
-								<include>**/*</include>
-							</includes>
-						</fileset>
-						<fileset>
-							<directory>src/main/python/mgw/jars</directory>
-							<includes>
-								<include>**/*</include>
-							</includes>
-						</fileset>
-					</filesets>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>build-artifact</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<finalName>ghostwriter</finalName>
-							<appendAssemblyId>false</appendAssemblyId>
-							<descriptors>
-								<descriptor>
-									src/assembly/assembly-jar.xml</descriptor>
-							</descriptors>
-							<outputDirectory>src/main/python/mgw/jars</outputDirectory>
-							<archive>
-								<manifest>
-									<mainClass>
-										org.machanism.machai.gw.processor.Ghostwriter</mainClass>
-								</manifest>
-								<manifestEntries>
-									<Class-Path>
-										${plugins-class-path}</Class-Path>
-									<Implementation-Version>
-										${project.version}</Implementation-Version>
-								</manifestEntries>
-							</archive>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>3.6.4</version>
-				<executions>
-					<execution>
-						<configuration>
-							<executable>python</executable>
-							<workingDirectory>src/main/python</workingDirectory>
-							<arguments>
-								<argument>-m</argument>
-								<argument>build</argument>
-							</arguments>
-						</configuration>
-						<id>python_build</id>
-						<phase>package</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
 
 	<licenses>
 		<license>
