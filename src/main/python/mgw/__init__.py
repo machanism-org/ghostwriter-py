@@ -4,7 +4,7 @@ Python interface to the Machai Ghostwriter command-line processor.
 The :func:`gw` function is re-exported here so callers can use the package
 as the default entry point::
 
-    from machai.gw import gw
+    from mgw import gw
 
 The implementation is imported lazily.  This is important when
 ``machai.gw.ghostwriter`` is executed with ``python -m``: importing the
