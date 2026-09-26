@@ -5,3 +5,5 @@
 /src/main/python/mgw/jars
 /src/main/python/dist
 /src/main/python/.idea
+/src/main/python/out
+/src/main/python/mgw/__pycache__
