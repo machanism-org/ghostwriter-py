@@ -110,10 +110,6 @@ The Maven assembly places the runtime archive in the Python package resources, a
 - A compatible Java runtime with **`JAVA_HOME` defined**.
 - A built Ghostwriter runtime included with the installed package.
 
-## Project Site
-
-[Machai Ghostwriter Python project site](https://machai.machanism.org/ghostwriter-py/)
-
 ## License
 
 See the project metadata for the applicable Apache License, Version 2.0 terms.
