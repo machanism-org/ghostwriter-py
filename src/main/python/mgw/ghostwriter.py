@@ -9,12 +9,6 @@ import jpype.imports
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 JAR_PATH = os.path.join(BASE_DIR, "jars", "ghostwriter.jar")
 
-
-import os
-import sys
-import jpype
-import jpype.imports
-
 def _ensure_jvm_started() -> None:
     """Ensure the JPype JVM is started with the required classpath and valid JAVA_HOME."""
     if jpype.isJVMStarted():
@@ -60,16 +54,38 @@ def _ensure_jvm_started() -> None:
         print(f"Error: Failed to start the Java Virtual Machine: {e}", file=sys.stderr)
         sys.exit(1)
 
-def gdp() -> str:
-    """Run GDP processor."""
+def gdp(model: str | None = None,
+        project_dir: str | None = None,
+        path: str = ".",
+        config_file: str = "gw.properties") -> list[str]:
+    """Process guidance tags in the current project.
+
+    GDP is deliberately kept separate from :func:`gw`: the Java command-line
+    entry point handles both guidance processing and acts, whereas this
+    function exposes the guidance processor directly for Python callers.
+    ``GuidanceProcessor`` requires the project directory, the optional model
+    name, and a configurator.  Passing ``None`` for the model lets the Java
+    implementation resolve it from its normal configuration sources.
+    """
     _ensure_jvm_started()
 
-    # Add your GDP specific invocation logic here
-    # from org.machanism.machai.gdp.processor import GuidanceProcessor
-    # ...
-    # return result
+    from org.machanism.machai.gw.processor import GuidanceProcessor
+    from org.machanism.macha.core.commons.configurator import PropertiesConfigurator
+    from java.io import File
 
-    raise NotImplementedError("GDP implementation pending")
+    if project_dir is None:
+        java_project_dir = File(os.path.abspath("."))
+    else:
+        java_project_dir = File(os.path.abspath(str(project_dir)))
+
+    guidance_processor = GuidanceProcessor(
+        java_project_dir,
+        model,
+        PropertiesConfigurator(config_file),
+    )
+    guidance_processor.scanDocuments(java_project_dir, path)
+
+    return list(guidance_processor.getReport())
 
 def adw() -> str:
     """Run GDP processor."""
