@@ -8,7 +8,7 @@ You are an expert Python packaging and Java integration assistant. Using general
 5. Installing & Verifying from Repositories (handling index fallbacks for dependencies like jpype1)
 6. Execution Guidelines (how to invoke the tool via console script, python module, or code API, including JAVA_HOME handling)
    - `python -m twine upload -r testpypi dist/*` 
-   - `pip install -U --no-cache-dir -i https://test.pypi.org/simple/ mgw`
+   - `pip install -U -no-cache-dir -i https://test.pypi.org/simple/ mgw`
 
 Requirements for the output:
 - Provide all terminal code blocks and automation steps specifically tailored for the **Windows Command Prompt (batch/cmd)** using standard `.bat` 
@@ -104,7 +104,8 @@ version in `pyproject.toml` and rebuild if a release must be corrected.
 ## Install and verify
 
 Use an isolated environment for each index. TestPyPI may need the public PyPI
-index as an additional source for dependencies such as JPype1:
+index as an additional source for dependencies such as JPype1. The pip option is
+spelled `--no-cache-dir` (with two hyphens):
 
 ```bat
 python -m venv .venv-testpypi
@@ -128,7 +129,8 @@ and Java runtime discovery all work from the published package.
 
 With the virtual environment activated and `JAVA_HOME` set to the JDK directory,
 the installed console script, Python module, and code API provide equivalent
-entry points:
+entry points. This wrapper requires `JAVA_HOME`; it does not fall back to a
+system Java installation when that variable is unset:
 
 ```bat
 mgw --help
@@ -136,10 +138,9 @@ python -m mgw --help
 python -c "from mgw import gw; print(gw(['--help']))"
 ```
 
-The wrapper locates the bundled JAR automatically and uses `JAVA_HOME`/the
-standard Java installation lookup to start JPype. If Java is not found, set
-`JAVA_HOME` and prepend its `bin` directory to `PATH` before invoking any entry
-point:
+The wrapper locates the bundled JAR automatically and uses the JDK selected by
+`JAVA_HOME` to start JPype. If Java is not found, set `JAVA_HOME` and prepend
+its `bin` directory to `PATH` before invoking any entry point:
 
 ```bat
 set "JAVA_HOME=C:\Program Files\Java\jdk-17"
