@@ -1,12 +1,15 @@
 <!-- @guidance: >>> ${guidances}/index-content.md 
 This is a python wraper of ghostwriter cli.
 
+- Add ![PyPI Version](https://img.shields.io/pypi/v/mgw)
 - Analyze `src/main/python` python project and detailed describe it in this readme file.
 - no maven-central shields required.
 - JAVA_HOME should be defined.
 --> 
 
 # Ghostwriter Python Wrapper (`mgw`)
+
+![PyPI Version](https://img.shields.io/pypi/v/mgw)
 
 `mgw` is a Python package that lets Python applications and shell users invoke
 the Machai Ghostwriter command-line processor. It combines a small Python
@@ -24,23 +27,26 @@ The JVM is reused for subsequent calls because JPype does not support starting
 a JVM again after it has been shut down.
 
 The package targets Python 3.9 and newer and declares `jpype1>=1.4.0` as a
-runtime dependency. Its public package interface lazily exposes `gw` and `adw`;
-the implementation also provides `gdp`. `gw` invokes the Java
-`org.machanism.machai.gw.processor.Ghostwriter` entry point and returns its
-result as a string. `gdp` processes guidance tags and returns the processor
-report, while `adw` executes a named Act and returns its results. All three
-operations validate and require a usable `JAVA_HOME` before starting the JVM.
+runtime dependency. Its package interface lazily exposes `gw` and `adw`, while
+the implementation also provides `gdp` for direct guidance processing. `gw`
+invokes the Java `org.machanism.machai.gw.processor.Ghostwriter` entry point and
+returns its result as a string. `gdp` constructs a Java `GuidanceProcessor`,
+scans a project for guidance tags, and returns its report as a Python list;
+`adw` constructs an `ActProcessor`, executes a named Act, and returns its
+results as a Python list. Before starting the JVM, each operation requires a
+defined, existing `JAVA_HOME` and a JVM library discoverable by JPype.
 
 ## Project Structure
 
 The project has a Python package layer, a Java bridge layer, and a bundled
-runtime layer. The package layer supplies lazy exports and the installed
-entry points. The bridge accepts command-line arguments or structured guidance
-and Act options, validates the Java environment, starts JPype, and delegates to
-the Java processors. The runtime layer contains the Ghostwriter processor and
-its dependencies in the distribution. External Python and Java runtimes host
-these layers, while a CLI user or Python application initiates processing and
-receives the resulting text or lists.
+runtime layer. The package layer supplies lazy public exports and the installed
+console and module entry points. The bridge validates the Java environment,
+starts JPype only when needed, resolves the packaged runtime, and delegates
+command-line, guidance, and Act requests to the appropriate Java processors.
+The runtime layer contains the Ghostwriter processor and its dependencies in
+the distribution. External Python and Java runtimes host these layers, while a
+CLI user or Python application initiates processing and receives text or
+ordinary Python lists.
 
 ![C4 Project Diagram](./images/c4-diagram.png)
 
