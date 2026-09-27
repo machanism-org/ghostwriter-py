@@ -121,11 +121,6 @@
 			<artifactId>ghostwriter</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.machanism.machai</groupId>
-			<artifactId>bindex-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 	</dependencies>
 
 	<licenses>
