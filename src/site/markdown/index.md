@@ -10,14 +10,15 @@ This is a python wraper of ghostwriter cli.
 
 # Ghostwriter Python Wrapper (`mgw`)
 
-![PyPI Version](https://img.shields.io/pypi/v/mgw)
-![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https%3A%2F%2Ftest.pypi.org&style=flat)
+[![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw) [![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https%3A%2F%2Ftest.pypi.org&style=flat&label=test.pypi)](https://test.pypi.org/project/mgw)
 
 `mgw` is a Python package that exposes the Machai Ghostwriter command-line
-processor to Python applications and shell users. It packages the Java
-Ghostwriter runtime alongside the Python package and uses JPype to start a JVM
-lazily, allowing callers to use Ghostwriter without assembling a Java class
-path themselves.
+processor to Python applications and shell users. It solves the integration
+problem of invoking a Java-based processor from Python by packaging the
+Ghostwriter runtime with the Python distribution and using JPype to start a
+JVM lazily. Callers can therefore use Ghostwriter without assembling a Java
+class path themselves, while retaining both a familiar CLI and a small Python
+API.
 
 ## Introduction
 
@@ -51,9 +52,11 @@ The project is organized as a small Python-to-Java bridge:
   script, and the `python -m mgw` module entry point.
 - The **JVM bridge layer** validates the Java environment, resolves the
   packaged runtime relative to the Python installation, starts JPype, and
-  forwards command-line or structured processor requests.
+  forwards command-line or structured processor requests. It also validates
+  `JAVA_HOME` and converts Java collection results into Python lists.
 - The **Ghostwriter runtime layer** supplies the Java command-line processor
-  and the guidance and Act processors used by the Python API.
+  and the guidance and Act processors used by the Python API. The runtime is
+  loaded by the JVM only when an operation is first requested.
 - The **packaging layer** builds the Java runtime with Maven and includes it in
   the Python wheel and source distribution so users install one package.
 
