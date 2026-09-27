@@ -5,9 +5,7 @@
 
 # Ghostwriter Python Wrapper (`mgw`)
 
-`mgw` is a Python wrapper for the Machai Ghostwriter command-line processor. It provides a Python API, an installed console command, and a module entry point while packaging the Java Ghostwriter runtime alongside the Python distribution. The wrapper locates the bundled runtime relative to the installed package and uses JPype to invoke it, so callers do not need to configure a Java class path manually.
-
-Project site: <https://machai.machanism.org/ghostwriter-py/>
+[![Maven Central](https://img.shields.io/maven-central/v/org.machanism.machai/ghostwriter-py.svg)](https://central.sonatype.com/artifact/org.machanism.machai/ghostwriter-py) [![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/ghostwriter-py/refs/heads/main/bindex.json)
 
 ## Cloning and Getting Started
 
@@ -23,9 +21,13 @@ To clone and set up this project locally, follow these steps:
    mvn clean install
    ```
 
+`mgw` is a Python wrapper for the Machai Ghostwriter command-line processor. It provides a Python API, an installed console command, and a module entry point while packaging the Java Ghostwriter runtime alongside the Python distribution. The wrapper locates the bundled runtime relative to the installed package and uses JPype to invoke it, so callers do not need to configure a Java class path manually.
+
+Project site: <https://machai.machanism.org/ghostwriter-py/>
+
 ## Introduction
 
-The project bridges a Python packaging and command-line experience with the Ghostwriter Java implementation. It lets Python applications and shell users invoke Ghostwriter with the same argument sequence while keeping the Java runtime self-contained in the installed package.
+The project bridges a Python packaging and command-line experience with the Ghostwriter Java implementation. It lets Python applications and shell users invoke Ghostwriter with the same argument sequence while keeping the Java runtime self-contained in the installed package. The wrapper exposes `gw` for command-line processing, `gdp` for guidance processing, and `adw` for executing a named Act; these operations validate `JAVA_HOME`, start JPype lazily, and return the Java processor's result as a string or Python list as appropriate.
 
 The Python package targets Python 3.9 or newer and depends on `jpype1>=1.4.0`. Its public `gw` function accepts an optional `list[str]`; when no list is provided, it forwards the current process arguments after the executable name. On first use, the wrapper discovers the JVM, starts it with string conversion enabled, adds the bundled Ghostwriter runtime to the class path, and invokes `org.machanism.machai.gw.processor.Ghostwriter.main`. Subsequent calls reuse the same JVM because JPype does not support restarting a JVM after shutdown.
 
@@ -39,7 +41,7 @@ The project consists of three cooperating layers:
 - The **Java execution layer** supplies the Ghostwriter processor that performs the requested command-line work and returns its result.
 - The **build and packaging layer** assembles the Java runtime and includes it in the Python distribution, allowing users to install one package rather than manage a separate class path.
 
-The Python API delegates lazily to the JVM bridge. The bridge starts the Java runtime through JPype, adds the bundled Ghostwriter runtime to the class path, and forwards the arguments to the Java processor. CLI users can reach the same bridge through either the installed command or the Python module.
+The Python API delegates lazily to the JVM bridge. The bridge starts the Java runtime through JPype, adds the bundled Ghostwriter runtime to the class path, and forwards arguments or structured processing options to the corresponding Java processor. CLI users can reach the same bridge through either the installed command or the Python module.
 
 ## Installation and Prerequisites
 
@@ -83,13 +85,31 @@ python -m mgw --help
 Import `gw` and pass the argument list intended for Ghostwriter:
 
 ```python
-from mgw.__main__ import gw
+from mgw import gw
 
 result = gw(["--help"])
 print(result)
 ```
 
 Arguments are forwarded without Python-side command-line parsing. The JVM starts lazily on the first call and is reused by later calls in the same process. The function returns the result produced by the Java processor as a Python string.
+
+For direct guidance processing, use `gdp` with an optional project directory and path:
+
+```python
+from mgw.ghostwriter import gdp
+
+report = gdp(path="src", project_dir=".")
+```
+
+To execute an Act, use `adw` with a non-empty Act name or expression:
+
+```python
+from mgw import adw
+
+results = adw("my-act", path="src", project_dir=".")
+```
+
+Both functions return Python lists. Their optional settings include the model, configuration file, path matcher, Act location, interactive mode, exclusions, thread count, non-recursive traversal, and module timeout; these are forwarded to the corresponding Java processor after JVM startup.
 
 ## Building
 
