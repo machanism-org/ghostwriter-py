@@ -1,12 +1,12 @@
 <!-- @guidance: >>> ${guidances}/readme-content.md
 - Add ![PyPI Version](https://img.shields.io/pypi/v/mgw)
-- Add ![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https%3A%2F%2Ftest.pypi.org&style=flat&label=test.pypi)
+- Add ![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https://test.pypi.org&style=flat&label=test.pypi)
 - Add link to the project site: https://machai.machanism.org/ghostwriter-py/
 -->
 
 # Ghostwriter Python Wrapper (`mgw`)
 
-[![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/) [![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https%3A%2F%2Ftest.pypi.org&style=flat&label=test.pypi)](https://test.pypi.org/project/mgw/)
+[![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/) [![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https://test.pypi.org&style=flat&label=test.pypi)](https://test.pypi.org/project/mgw/)
 
 ## Cloning and Getting Started
 
