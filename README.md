@@ -1,4 +1,5 @@
 <!-- @guidance: >>> ${guidances}/readme-content.md
+- Add ![PyPI Version](https://img.shields.io/pypi/v/mgw)
 - Add link to the project site: https://machai.machanism.org/ghostwriter-py/
 -->
 
