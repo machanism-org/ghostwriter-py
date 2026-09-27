@@ -50,6 +50,7 @@ def _ensure_jvm_started() -> None:
             f"-Djava.class.path={JAR_PATH}",
             convertStrings=True,
         )
+        
     except Exception as e:
         print(f"Error: Failed to start the Java Virtual Machine: {e}", file=sys.stderr)
         sys.exit(1)
