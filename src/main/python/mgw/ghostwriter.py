@@ -9,9 +9,47 @@ import jpype.imports
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 JAR_PATH = os.path.join(BASE_DIR, "jars", "ghostwriter.jar")
 
-def _ensure_jvm_started() -> None:
+def _resolve_library(value: str) -> str:
+    """Resolve a local library path or a Maven coordinate with ``jgo``."""
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("libs entries must be non-empty strings")
+
+    value = value.strip()
+    path = os.path.abspath(value)
+    if os.path.exists(path):
+        return path
+
+    coordinates = value.split(":")
+    if len(coordinates) not in (3, 4) or any(not part for part in coordinates):
+        raise FileNotFoundError(
+            f"Library '{value}' is neither an existing path nor a Maven "
+            "coordinate (groupId:artifactId:version)"
+        )
+
+    # Import lazily so users who only use gw() do not need Maven resolution.
+    from jgo import MavenContext
+
+    try:
+        dependency = MavenContext().create_dependency(value)
+        resolved = dependency.artifact.resolve()
+    except Exception as error:
+        raise FileNotFoundError(
+            f"Could not resolve Maven library '{value}' with jgo: {error}"
+        ) from error
+    return os.fspath(resolved)
+
+
+def _ensure_jvm_started(libs: list[str] | None = None) -> None:
     """Ensure the JPype JVM is started with the required classpath and valid JAVA_HOME."""
+    resolved_libs = [] if libs is None else [_resolve_library(lib) for lib in libs]
+
     if jpype.isJVMStarted():
+        # addClassPath is useful when this function is called before a Java
+        # class is first loaded.  JPype cannot reliably alter an already
+        # loaded JVM's system class path, so callers should provide libs on
+        # their first gdp/adw call.
+        for library in resolved_libs:
+            jpype.addClassPath(library)
         return
 
     # 1. Validate that JAVA_HOME is set in the environment
@@ -45,9 +83,10 @@ def _ensure_jvm_started() -> None:
 
     # 4. Start the JVM
     try:
+        classpath = os.pathsep.join([JAR_PATH, *resolved_libs])
         jpype.startJVM(
             jvm_path,
-            f"-Djava.class.path={JAR_PATH}",
+            f"-Djava.class.path={classpath}",
             convertStrings=True,
         )
         
@@ -63,7 +102,8 @@ def gdp(model: str | None = None,
         threads: int | None = None,
         excludes: list[str] | None = None,
         non_recursive: bool = False,
-        module_thread_timeout_minutes: int | None = None) -> list[str]:
+        module_thread_timeout_minutes: int | None = None,
+        libs: list[str] | None = None) -> list[str]:
     """Process guidance tags in the current project.
 
     GDP is deliberately kept separate from :func:`gw`: the Java command-line
@@ -77,7 +117,9 @@ def gdp(model: str | None = None,
     and module timeout.  ``path`` is passed unchanged as a relative path,
     glob, or regular-expression matcher.
     """
-    _ensure_jvm_started()
+    if libs is not None and isinstance(libs, (str, bytes)):
+        raise TypeError("libs must be a list of Maven IDs or library paths")
+    _ensure_jvm_started(libs)
 
     from org.machanism.machai.gw.processor import GuidanceProcessor
     from org.machanism.macha.core.commons.configurator import PropertiesConfigurator
@@ -124,7 +166,8 @@ def adw(
         config_file: str = "gw.properties",
         acts_location: str | None = None,
         interactive: bool = False,
-        disable_normal_order: bool = False) -> list[str]:
+        disable_normal_order: bool = False,
+        libs: list[str] | None = None) -> list[str]:
     """Execute an Act against the current project.
 
     This is the Python equivalent of Ghostwriter's ``--act`` mode.  ``act``
@@ -145,7 +188,9 @@ def adw(
     if not isinstance(act, str) or not act.strip():
         raise ValueError("act must be a non-empty Act name or expression")
 
-    _ensure_jvm_started()
+    if libs is not None and isinstance(libs, (str, bytes)):
+        raise TypeError("libs must be a list of Maven IDs or library paths")
+    _ensure_jvm_started(libs)
 
     from java.io import File
     from org.machanism.machai.gw.processor import ActProcessor

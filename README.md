@@ -32,14 +32,15 @@ The project bridges a Python packaging and command-line experience with the Ghos
 
 The Python package targets Python 3.9 or newer and depends on `jpype1>=1.4.0`. Its public `gw` function accepts an optional `list[str]`; when no list is provided, it forwards the current process arguments after the executable name. On first use, the wrapper discovers the JVM, starts it with string conversion enabled, adds the bundled Ghostwriter runtime to the class path, and invokes `org.machanism.machai.gw.processor.Ghostwriter.main`. Subsequent calls reuse the same JVM because JPype does not support restarting a JVM after shutdown.
 
-The package initializer exposes `gw` lazily, while the module implementation handles argument forwarding, JVM startup, runtime resolution, and result handling. The Maven build assembles the Java runtime into the Python package, and Hatchling builds the Python source distribution and wheel with that runtime included.
+The package initializer exposes the public functions lazily, while the module implementation handles argument forwarding, JVM startup, runtime resolution, and result handling. The direct processors also support optional local libraries or Maven coordinates through `jgo`. The Maven build assembles the Java runtime into the Python package, and Hatchling builds the Python source distribution and wheel with that runtime included.
 
 ## Project Structure
 
-The project consists of three cooperating layers:
+The project consists of four cooperating layers:
 
-- The **Python package layer** provides the public API and command-line entry points, resolves the embedded runtime relative to the installation, and forwards arguments.
-- The **Java execution layer** supplies the Ghostwriter processor that performs the requested command-line work and returns its result.
+- The **public interface layer** provides lazy Python exports and the console and module entry points.
+- The **JVM bridge layer** validates the Java environment, resolves the packaged runtime, starts JPype, and forwards requests.
+- The **processor API layer** maps Python arguments to command, guidance, and Act processors, including traversal, exclusions, thread, timeout, and optional library settings.
 - The **build and packaging layer** assembles the Java runtime and includes it in the Python distribution, allowing users to install one package rather than manage a separate class path.
 
 The Python API delegates lazily to the JVM bridge. The bridge starts the Java runtime through JPype, adds the bundled Ghostwriter runtime to the class path, and forwards arguments or structured processing options to the corresponding Java processor. CLI users can reach the same bridge through either the installed command or the Python module.
@@ -61,7 +62,7 @@ mvn clean package -Prelease
 python -m pip install .\src\main\python
 ```
 
-The package declares JPype as a dependency. JPype must be able to discover the JVM at `jpype.getDefaultJVMPath()`, and the installed package must contain the bundled Ghostwriter runtime.
+The package declares `jpype1>=1.4.0` and `jgo>=1.0.0` as dependencies. JPype must be able to discover the JVM at `jpype.getDefaultJVMPath()`, and the installed package must contain the bundled Ghostwriter runtime.
 
 ## Usage
 
@@ -99,7 +100,9 @@ For direct guidance processing, use `gdp` with an optional project directory and
 ```python
 from mgw.ghostwriter import gdp
 
-report = gdp(path="src", project_dir=".")
+report = gdp(path="src", project_dir=".", threads=2)
+for item in report:
+    print(item)
 ```
 
 To execute an Act, use `adw` with a non-empty Act name or expression:
@@ -110,7 +113,7 @@ from mgw import adw
 results = adw("my-act", path="src", project_dir=".")
 ```
 
-Both functions return Python lists. Their optional settings include the model, configuration file, path matcher, Act location, interactive mode, exclusions, thread count, non-recursive traversal, and module timeout; these are forwarded to the corresponding Java processor after JVM startup.
+Both functions return Python lists. Their optional settings include the model, configuration file, path matcher, Act location, interactive mode, exclusions, thread count, non-recursive traversal, module timeout, and additional libraries; these are forwarded to the corresponding Java processor after JVM startup. Thread and module-timeout values must be positive integers when supplied, exclusions and libraries must be lists, and `non_recursive` controls traversal depth.
 
 ## Building
 
@@ -128,7 +131,7 @@ The generated source distribution and wheel are placed in the Python project's `
 ## Requirements
 
 - Python 3.9 or newer.
-- `jpype1>=1.4.0`.
+- `jpype1>=1.4.0` and `jgo>=1.0.0`.
 - A supported Java runtime with `JAVA_HOME` defined.
 - The bundled Ghostwriter runtime, included in the installed package.
 

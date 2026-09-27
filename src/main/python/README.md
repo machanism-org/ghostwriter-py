@@ -16,7 +16,7 @@ Project site: <https://machai.machanism.org/ghostwriter-py/>
 ## Requirements
 
 - Python 3.9 or newer.
-- `jpype1>=1.4.0` (installed automatically with `mgw`).
+- `jpype1>=1.4.0` and `jgo>=1.0.0` (installed automatically with `mgw`).
 - A Java installation supported by JPype, with `JAVA_HOME` set to its JDK or JVM installation.
 
 ## Installation
@@ -63,6 +63,17 @@ from mgw.ghostwriter import adw, gdp
 
 report = gdp(path="src")
 results = adw("my-act", path="src")
+```
+
+Additional Java libraries can be supplied as local JAR paths or Maven
+coordinates (`groupId:artifactId:version`). Maven coordinates are resolved
+and downloaded by `jgo` before the JVM starts:
+
+```python
+report = gdp(
+    path="src",
+    libs=["com.example:example-library:1.0.0", "lib/custom-tools.jar"],
+)
 ```
 
 ## Building the Python distribution

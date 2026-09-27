@@ -7,12 +7,13 @@ mgw = "mgw.__main__:gw"
 
 [project]
 name = "mgw"
-version = "1.4.2.9"
+version = "1.4.2.10"
 description = "Python wrapper for Machai Ghostwriter"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "jpype1>=1.4.0",
+    "jgo>=1.0.0",
 ]
 authors = [
     { name = "Viktor Tovstyi", email = "viktor.tovstyi@gmail.com" }
