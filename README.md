@@ -5,7 +5,7 @@
 
 # Ghostwriter Python Wrapper (`mgw`)
 
-[![Maven Central](https://img.shields.io/maven-central/v/org.machanism.machai/ghostwriter-py.svg)](https://central.sonatype.com/artifact/org.machanism.machai/ghostwriter-py) [![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/ghostwriter-py/refs/heads/main/bindex.json)
+[![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/ghostwriter-py/refs/heads/main/bindex.json)
 
 ## Cloning and Getting Started
 
