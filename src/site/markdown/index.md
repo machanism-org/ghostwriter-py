@@ -2,7 +2,7 @@
 This is a python wraper of ghostwriter cli.
 
 - Add ![PyPI Version](https://img.shields.io/pypi/v/mgw)
-- Add ![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https%3A%2F%2Ftest.pypi.org&style=flat)
+- Add ![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https%3A%2F%2Ftest.pypi.org&style=flat&label=test.pypi)
 - Analyze `src/main/python` python project and detailed describe it in this readme file.
 - no maven-central shields required.
 - JAVA_HOME should be defined.
