@@ -5,6 +5,8 @@
 
 # Ghostwriter Python Wrapper (`mgw`)
 
+[![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/)
+
 ## Cloning and Getting Started
 
 To clone and set up this project locally, follow these steps:
