@@ -1,11 +1,8 @@
 <!-- @guidance: >>> ${guidances}/readme-content.md
-- no img.shields.io/maven-central required.
 - Add link to the project site: https://machai.machanism.org/ghostwriter-py/
 -->
 
 # Ghostwriter Python Wrapper (`mgw`)
-
-[![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/ghostwriter-py/refs/heads/main/bindex.json)
 
 ## Cloning and Getting Started
 
