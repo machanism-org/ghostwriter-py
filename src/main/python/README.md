@@ -1,11 +1,13 @@
 <!-- @guidance: 
+This is the README.md file for the PyPI release. It should be concise and contain all the necessary information and follow best practices.
+
+- Title: Machai Ghostwriter Python Wrapper
 - Review pytone project in `src/main/python`.
-- This is the README.md file for the PyPI release. It should be concise and contain all the necessary information and follow best practices.
 - Add link to the project site: https://machai.machanism.org/ghostwriter-py/
 - License: Apache License, Version 2.0.
 -->
 
-# Ghostwriter Python Wrapper (`mgw`)
+# Machai Ghostwriter Python Wrapper
 
 `mgw` is a Python wrapper for the Machai Ghostwriter command-line processor. It exposes a Python API, the `mgw` console command, and the `python -m mgw` entry point. The package includes the Java runtime and starts the JVM lazily through JPype.
 
