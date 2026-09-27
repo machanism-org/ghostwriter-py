@@ -12,13 +12,13 @@ submodule while initializing this package would make ``runpy`` find it in
 ``sys.modules`` before it had a chance to execute it.
 """
 
-__all__ = ["gw"]
+__all__ = ["gw", "adw"]
 
 
 def __getattr__(name: str):
     """Resolve the public wrapper function only when it is requested."""
-    if name == "gw":
-        from .ghostwriter import gw
+    if name in {"gw", "adw"}:
+        from .ghostwriter import adw, gw
 
-        return gw
+        return {"gw": gw, "adw": adw}[name]
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
