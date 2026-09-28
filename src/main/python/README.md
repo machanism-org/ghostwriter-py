@@ -56,10 +56,10 @@ print(result)
 
 `gw` forwards arguments to Ghostwriter without Python-side command-line parsing and returns the processor result as a string. If called without an argument list, it forwards the current process arguments after the executable name. The JVM starts on first use and is reused for later calls.
 
-The implementation module also exposes `gdp` for processing guidance tags and `adw` for executing an Act:
+The package also exposes `gdp` for processing guidance tags and `adw` for executing an Act:
 
 ```python
-from mgw.ghostwriter import adw, gdp
+from mgw import adw, gdp
 
 report = gdp(path="src")
 results = adw("my-act", path="src")

@@ -14,27 +14,31 @@ This is a python wraper of ghostwriter cli.
 
 [![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/) [![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https://test.pypi.org&style=flat&label=test.pypi)](https://test.pypi.org/project/mgw/)
 
-`mgw` packages a Python interface around the Machai Ghostwriter Java command-line processor. It provides a direct Python API, an installed `mgw` console command, and the `python -m mgw` entry point. The Java runtime is bundled with the package and launched lazily through JPype, so users do not need to manage a Java class path manually.
-
 ## Introduction
 
-The wrapper solves the integration problem of using Ghostwriter from Python applications, Python automation, and shell scripts while retaining the Java processor's capabilities. The `gw` entry point forwards Ghostwriter command-line arguments, `gdp` exposes direct guidance-document processing, and `adw` executes an Act against a project. Results are converted to convenient Python values: `gw` returns the Java result string, while `gdp` and `adw` return Python lists.
+`mgw` provides a Python API and command-line entry point for the Machai Ghostwriter processor. It bridges Python applications with the bundled Java implementation, allowing users to run Ghostwriter without manually assembling a Java class path. The package starts JPype lazily, validates the Java environment, loads the bundled runtime, and forwards either command-line arguments or structured guidance and Act-processing options to the appropriate Java processor.
 
-At runtime, the package locates its bundled Ghostwriter JAR relative to the installed `mgw` package. On the first operation it validates `JAVA_HOME`, discovers a usable JVM through JPype, starts it with the bundled runtime, and reuses that JVM for subsequent calls. Optional local JARs and Maven coordinates can be supplied to the direct processor APIs and are resolved before JVM startup. The implementation uses Python 3.10 union-type syntax; install it with Python 3.10 or newer. Runtime dependencies are `jpype1` and `jgo`.
-
-The package initializer exports `gw`, `gdp`, and `adw` lazily. The implementation module contains the JVM lifecycle, library resolution, command forwarding, guidance processing, and Act processing logic. Packaging metadata exposes the `mgw` console script, while the Maven release build assembles the Java runtime into the Python distribution.
+The package supports Python 3.9 or newer and includes the Ghostwriter runtime in its distribution. Its public operations cover ordinary Ghostwriter invocation (`gw`), guidance-tag processing (`gdp`), and Act execution (`adw`). Direct processor calls can also resolve additional local JAR files or Maven coordinates through `jgo`. Results are converted to ordinary Python values where appropriate, so callers do not need to manage JPype collections.
 
 ## Project Structure
 
-The project is organized as a small bridge between Python callers and the Ghostwriter processor. The public API layer lazily exports `gw`, `gdp`, and `adw`; the entry-point layer supports both the installed console command and `python -m mgw`; and the wrapper layer accepts command-line or structured calls. The JVM bridge validates the Java environment, resolves optional libraries, and starts JPype only when an operation is first requested. The bundled runtime supplies the Ghostwriter implementation, which performs the requested command, guidance, or Act operation and returns results to Python. The build and packaging configuration places that runtime beside the Python package so installation remains self-contained, while the external Python and Java runtimes provide execution services.
+The system is organized around a small set of cooperating components:
+
+- **Public API:** lazily exposes the wrapper functions so importing the package does not start a JVM.
+- **Command and processor bridge:** validates `JAVA_HOME`, resolves the embedded runtime, starts JPype on first use, and maps Python arguments to Ghostwriter processors.
+- **Bundled Java runtime:** supplies the Ghostwriter command, guidance processor, and Act processor used by the bridge.
+- **Python and Java runtimes:** provide the execution environments in which the package and embedded processor run.
+- **CLI entry points:** accept Ghostwriter arguments from an installed command or Python module and pass them through unchanged.
+
+The public API delegates to the bridge, which starts the Java runtime with the bundled processor on its class path. The direct processors additionally configure project traversal, models, configuration files, exclusions, concurrency, timeouts, Act locations, and optional libraries before scanning the requested project.
 
 ![C4 Project Diagram](./images/c4-diagram.png)
 
-## Installation and Prerequisites
+## Prerequisites and Installation
 
-Use Python 3.10 or newer, install the package with `pip`, and use a Java installation supported by JPype. The implementation uses modern type-union syntax, so Python 3.10+ is required even though the packaging metadata currently declares `>=3.9`. `JAVA_HOME` **must be defined** and must point to an existing JDK or JVM installation before the first API or CLI invocation.
+Before using `mgw`, install Python 3.9 or newer and a Java installation supported by JPype. `JAVA_HOME` **must be defined** and must point to an existing JDK or JVM installation; JPype must also be able to locate a valid JVM library through that installation. The package dependencies include `jpype1>=1.4.0` and `jgo>=1.0.0`.
 
-On Windows PowerShell:
+On Windows PowerShell, configure the Java environment and install the published package:
 
 ```powershell
 $env:JAVA_HOME = "C:\Path\To\Your\JDK"
@@ -42,29 +46,29 @@ $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 python -m pip install mgw
 ```
 
-For a local checkout, build the Java runtime and install the Python project:
+For a local checkout, build the embedded runtime and install the Python package:
 
 ```powershell
 mvn clean package -Prelease
 python -m pip install .\src\main\python
 ```
 
-The package installs `jpype1>=1.4.0` and `jgo>=1.0.0` automatically. JPype must be able to locate a valid JVM library through the configured Java installation.
+The installed package contains the Java runtime, so no separate class-path configuration is required. The JVM is started only when one of the public operations is first invoked and is reused for subsequent calls in the same process.
 
 ## Usage
 
-### Console and module entry points
+### Command line
 
-Both command-line forms forward arguments to Ghostwriter:
+Ghostwriter arguments can be passed directly through either supported entry point:
 
 ```powershell
 mgw --help
 python -m mgw --help
 ```
 
-### Command API
+### General Ghostwriter invocation
 
-Use `gw(args)` when an application needs the normal Ghostwriter command interface. `args` is an optional list of command-line argument strings. If omitted, the function forwards the current process arguments after the executable name. It returns the result from `Ghostwriter.main` as a string.
+Use `gw` when the caller already has the argument sequence expected by Ghostwriter:
 
 ```python
 from mgw import gw
@@ -73,92 +77,33 @@ result = gw(["--help"])
 print(result)
 ```
 
-The JVM is started only when `gw` is first called. A later call reuses the already-started JVM; JPype does not support restarting a JVM after shutdown.
+If `args` is omitted, `gw` forwards the current process arguments after the executable name. It returns the result from the Java Ghostwriter command as a string.
 
-### Guidance processing API
+### Guidance processing
 
-`gdp` scans project documents for guidance tags and returns the processor report as a Python list. Its signature is:
-
-```python
-gdp(
-    model=None,
-    project_dir=None,
-    path=".",
-    config_file="gw.properties",
-    instructions=None,
-    threads=None,
-    excludes=None,
-    non_recursive=False,
-    module_thread_timeout_minutes=None,
-    libs=None,
-)
-```
-
-It constructs a `GuidanceProcessor`, applies the optional processor settings, scans the requested project-relative path, and converts the Java report to a native list.
-
-- `model` optionally selects the provider/model configuration.
-- `project_dir` identifies the project root; the current directory is used when omitted.
-- `path` is passed to the Java processor as a relative path, glob, or regular-expression matcher.
-- `config_file` selects the properties configurator, and `instructions` supplies optional processing instructions.
-- `threads`, `excludes`, `non_recursive`, and `module_thread_timeout_minutes` control traversal and processing. Thread and timeout values must be positive integers; a string or bytes value is not valid for `excludes`.
-- `libs` is an optional list-like collection of existing library paths or Maven coordinates. Coordinates in `groupId:artifactId:version` or four-part form are resolved with `jgo`.
-- `libs` must not be a string or bytes value; each entry must be a non-empty string naming a local path or resolvable Maven coordinate. Invalid thread and timeout values raise `ValueError`; invalid `libs` containers raise `TypeError`, invalid entries raise `ValueError`, and unresolved libraries raise `FileNotFoundError` before processing.
+Use `gdp` to scan a project for guidance tags. The path may be a relative path, glob, or regular-expression matcher understood by the Java processor:
 
 ```python
-from mgw.ghostwriter import gdp
+from mgw import gdp
 
 report = gdp(path="src", project_dir=".", threads=2)
 for item in report:
     print(item)
 ```
 
-### Act processing API
+### Act execution
 
-`adw` executes a named Act or Act expression and returns its results as a Python list. Its signature is:
-
-```python
-adw(
-    act,
-    model=None,
-    project_dir=None,
-    path=".",
-    config_file="gw.properties",
-    acts_location=None,
-    interactive=False,
-    disable_normal_order=False,
-    libs=None,
-)
-```
-
-`act` must be a non-empty string. The remaining options select the model, project and configuration, Act location, interactive behavior, normal ordering, and optional libraries. The Java result collection is explicitly converted to a native list.
-
-Parameters are interpreted as follows:
-
-- `act` is the required Act name or expression; an empty or non-string value
-  raises `ValueError`.
-- `model` optionally selects the provider/model, and `project_dir` selects the
-  project root (the current directory is the default).
-- `path` identifies the project-relative path, glob, or regular-expression
-  matcher to scan. `config_file` names the properties configurator file.
-- `acts_location` optionally selects where Acts are loaded from.
-- `interactive` enables interactive Act processing, while
-  `disable_normal_order` disables the processor's normal ordering behavior.
-- `libs` is an optional list-like collection of existing library paths or
-  resolvable Maven coordinates. It cannot be a string or bytes value; a
-  non-string or empty entry raises `ValueError`, and an unresolved library
-  raises `FileNotFoundError` before processing.
+Use `adw` to execute a named Act or Act expression against a project:
 
 ```python
 from mgw import adw
 
-results = adw("my-act", project_dir=".", path="src")
+results = adw("my-act", path="src", project_dir=".")
 for result in results:
     print(result)
 ```
 
-### Library resolution and errors
-
-For `gdp` and `adw`, `libs` can combine local JAR paths and Maven coordinates:
+Additional libraries may be local paths or Maven coordinates and are resolved before the JVM starts:
 
 ```python
 report = gdp(
@@ -167,37 +112,56 @@ report = gdp(
 )
 ```
 
-The wrapper rejects invalid argument types and values before processing. If `JAVA_HOME` is missing, does not name a directory, or does not lead to a discoverable JVM, it reports the problem on standard error and exits with status 1. Library resolution failures are reported as file-not-found errors.
+## Python API Reference
 
-## API Summary
-
-| Public API | Purpose | Return value |
-| --- | --- | --- |
-| `mgw.gw(args=None)` | Forward Ghostwriter command-line arguments through the bundled Java runtime; omitted `args` means the current process arguments after the executable name. | `str` |
-| `mgw.gdp(...)` | Lazily exposed package-level form of the guidance processor API. | `list` |
-| `mgw.adw(act, ...)` | Lazily exposed package-level form of the Act processor API. | `list` |
-| `mgw.ghostwriter.gdp(...)` | Scan documents, configure guidance processing, and return the report. | `list` |
-| `mgw.ghostwriter.adw(act, ...)` | Configure and execute an Act against a project. | `list` |
-| `mgw.ghostwriter.gw(args=None)` | Direct-module form of the command API. | `str` |
-
-The package also defines the public module hook `mgw.__getattr__(name)`. Its
-signature is:
+### `gw`
 
 ```python
-__getattr__(name: str)
+def gw(args: list[str] | None = None) -> str:
 ```
 
-It returns `gw`, `gdp`, or `adw` when one of those names is requested and
-raises `AttributeError` for unknown names. This lazy resolution keeps imports
-light and avoids eager JVM-related imports. The implementation's private
-`_resolve_library(value)` accepts an existing path or a three- or four-part
-Maven coordinate, and `_ensure_jvm_started(libs=None)` validates `JAVA_HOME`,
-resolves optional libraries, and starts or reuses JPype's JVM; these helpers
-are intentionally private and are not part of the public API.
+Runs Ghostwriter through the Java command-line processor. `args` is an optional list of command-line arguments; when it is `None`, the function uses the current process arguments. The function starts the JVM lazily, invokes Ghostwriter, and returns its result as a string. `JAVA_HOME` must be set before the first invocation.
 
-## Building and Releasing
+### `gdp`
 
-From the project root, assemble the Java runtime and build the Python artifacts:
+```python
+def gdp(
+    model: str | None = None,
+    project_dir: str | None = None,
+    path: str = ".",
+    config_file: str = "gw.properties",
+    instructions: str | None = None,
+    threads: int | None = None,
+    excludes: list[str] | None = None,
+    non_recursive: bool = False,
+    module_thread_timeout_minutes: int | None = None,
+    libs: list[str] | None = None,
+) -> list[str]:
+```
+
+Processes guidance tags in the selected project and returns the Java processor report as a Python list. `model` selects the provider or model, `project_dir` identifies the project (defaulting to the current directory), `path` selects what to scan, and `config_file` supplies the configurator properties file. `instructions` overrides processor instructions. `threads` controls processing concurrency, `excludes` supplies path patterns, `non_recursive` limits traversal to the selected level, and `module_thread_timeout_minutes` sets the module timeout. `libs` accepts a list of local library paths or Maven coordinates. Thread and timeout values must be positive integers; `libs` and `excludes` must not be strings.
+
+### `adw`
+
+```python
+def adw(
+    act: str,
+    model: str | None = None,
+    project_dir: str | None = None,
+    path: str = ".",
+    config_file: str = "gw.properties",
+    acts_location: str | None = None,
+    interactive: bool = False,
+    disable_normal_order: bool = False,
+    libs: list[str] | None = None,
+) -> list[str]:
+```
+
+Executes the non-empty `act` name or expression and returns the processor results as a Python list. `model`, `project_dir`, `path`, `config_file`, and `libs` have the same roles as in `gdp`. `acts_location` selects where Acts are loaded from, `interactive` enables interactive processing, and `disable_normal_order` disables the normal Act order. The function validates the Act name and the JVM prerequisites before scanning the project.
+
+## Building
+
+To assemble the Java runtime and build the Python source distribution and wheel:
 
 ```powershell
 mvn clean package -Prelease
@@ -206,7 +170,7 @@ python -m pip install --upgrade build
 python -m build
 ```
 
-The wheel and source distribution are written to the Python project's `dist` directory. The release profile assembles the Java runtime, and Hatchling includes that runtime in the Python wheel.
+The generated Python artifacts are placed in the package distribution directory. The release build includes the embedded Java runtime in those artifacts.
 
 ## License
 

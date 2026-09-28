@@ -4,7 +4,7 @@
 - Add link to the project site: https://machai.machanism.org/ghostwriter-py/
 -->
 
-# Ghostwriter Python Wrapper (`mgw`)
+# Machai Ghostwriter Python Wrapper (`mgw`)
 
 [![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/) [![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https://test.pypi.org&style=flat&label=test.pypi)](https://test.pypi.org/project/mgw/)
 
@@ -98,7 +98,7 @@ Arguments are forwarded without Python-side command-line parsing. The JVM starts
 For direct guidance processing, use `gdp` with an optional project directory and path:
 
 ```python
-from mgw.ghostwriter import gdp
+from mgw import gdp
 
 report = gdp(path="src", project_dir=".", threads=2)
 for item in report:
@@ -114,6 +114,53 @@ results = adw("my-act", path="src", project_dir=".")
 ```
 
 Both functions return Python lists. Their optional settings include the model, configuration file, path matcher, Act location, interactive mode, exclusions, thread count, non-recursive traversal, module timeout, and additional libraries; these are forwarded to the corresponding Java processor after JVM startup. Thread and module-timeout values must be positive integers when supplied, exclusions and libraries must be lists, and `non_recursive` controls traversal depth.
+
+## Python API Reference
+
+### `gw`
+
+```python
+def gw(args: list[str] | None = None) -> str:
+```
+
+Runs the Ghostwriter Java command-line processor. `args` is an optional list of command-line arguments; when omitted, the function forwards the current process arguments after the executable name. The JVM starts lazily on the first call, and the Java result is returned as a Python string. `JAVA_HOME` must be defined before the first invocation.
+
+### `gdp`
+
+```python
+def gdp(
+    model: str | None = None,
+    project_dir: str | None = None,
+    path: str = ".",
+    config_file: str = "gw.properties",
+    instructions: str | None = None,
+    threads: int | None = None,
+    excludes: list[str] | None = None,
+    non_recursive: bool = False,
+    module_thread_timeout_minutes: int | None = None,
+    libs: list[str] | None = None,
+) -> list[str]:
+```
+
+Processes guidance tags in the selected project and returns the processor report as a Python list. `model` selects the provider or model, `project_dir` identifies the project, `path` selects a relative path or matcher, and `config_file` supplies the properties configuration. `instructions` overrides processor instructions; `threads`, `excludes`, `non_recursive`, and `module_thread_timeout_minutes` control concurrency and traversal. `libs` accepts local library paths or Maven coordinates. Thread and timeout values must be positive integers, while `libs` and `excludes` must be lists rather than strings.
+
+### `adw`
+
+```python
+def adw(
+    act: str,
+    model: str | None = None,
+    project_dir: str | None = None,
+    path: str = ".",
+    config_file: str = "gw.properties",
+    acts_location: str | None = None,
+    interactive: bool = False,
+    disable_normal_order: bool = False,
+    libs: list[str] | None = None,
+) -> list[str]:
+```
+
+Executes a non-empty Act name or expression and returns the results as a Python list. `model`, `project_dir`, `path`, `config_file`, and `libs` have the same roles as in `gdp`; `acts_location` selects where Acts are loaded from, `interactive` enables interactive processing, and `disable_normal_order` disables the normal Act order. `JAVA_HOME` must be defined before invocation.
 
 ## Building
 
