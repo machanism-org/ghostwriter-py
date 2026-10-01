@@ -13,15 +13,13 @@
 
 	<!-- @guidance: Summarize the `src/site/markdown/index.md` introduction
 	section and put this conten to the `description` tag.  -->
-	<description>Python wrapper around the Machai Ghostwriter command-line
-		processor. It keeps the Ghostwriter Java runtime artifact
-		(ghostwriter.jar) next to the mgw python package and resolves it
-		relative to the package installation directory, so consumers do not need
-		to configure a class path manually. The public entry point is the gw
-		function, which accepts a list of command-line arguments, lazily starts
-		an embedded JVM (via JPype) on first use, invokes
-		org.machanism.machai.gw.processor.Ghostwriter.main, prints the returned
-		result, and returns it to the caller.</description>
+	<description>Python wrapper and command-line entry point for the Machai
+		Ghostwriter processor. It bundles the Java runtime with the mgw package,
+		validates JAVA_HOME, starts JPype lazily, and forwards command-line,
+		guidance-processing, and Act-execution requests without requiring manual
+		classpath configuration. The public gw, gdp, and adw operations support
+		Python 3.9 or newer, can resolve local JARs or Maven coordinates, and
+		return processor results as ordinary Python values.</description>
 
 	<properties>
 		<maven.compiler.release>17</maven.compiler.release>
