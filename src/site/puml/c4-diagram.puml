@@ -14,26 +14,33 @@
 LAYOUT_WITH_LEGEND()
 title Ghostwriter Python Wrapper - Component Diagram
 
-Person(cliUser, "CLI user", "Invokes Ghostwriter through the Python API, console script, or Python module")
+Person(cliUser, "CLI or Python user", "Invokes Ghostwriter through the mgw command, python -m mgw, or the Python API")
 System_Ext(pythonRuntime, "Python runtime", "Executes the installed mgw package")
-System_Ext(javaRuntime, "Java runtime", "Provides the JVM used by JPype")
+System_Ext(jpype, "JPype", "Bridges Python calls to the Java Virtual Machine")
+System_Ext(javaRuntime, "Java Virtual Machine", "Runs the bundled Ghostwriter Java implementation")
+System_Ext(mavenResolver, "Maven resolver", "Resolves optional library coordinates through jgo")
+System_Ext(mavenRepository, "Maven repository", "Hosts optional Java libraries")
 
 Container_Boundary(mgwPackage, "mgw Python package") {
-    Component(publicApi, "Public API", "mgw/__init__.py", "Lazily exposes the gw function while avoiding eager loading of the implementation")
-    Component(wrapper, "JVM bridge and launcher", "mgw/__main__.py", "Accepts argument lists, resolves the bundled JAR, starts JPype when needed, and forwards calls")
-    Component(runtimeJar, "Bundled Ghostwriter runtime", "jars/ghostwriter.jar", "Packaged Java runtime containing the Ghostwriter processor")
+    Component(publicApi, "Public API", "mgw/__init__.py", "Lazily exposes gw, gdp, and adw without eagerly importing the implementation")
+    Component(entryPoint, "Console/module entry point", "mgw/__main__.py", "Routes mgw and python -m mgw invocations to the Ghostwriter wrapper")
+    Component(wrapper, "Ghostwriter wrapper", "mgw/_ghostwriter.py", "Validates settings, resolves libraries, starts the JVM, and invokes Ghostwriter, GuidanceProcessor, or ActProcessor")
+    Component(runtimeJar, "Bundled Ghostwriter runtime", "mgw/jars/ghostwriter.jar", "Packaged Java implementation used as the default JVM class path")
 }
 
-System_Ext(ghostwriter, "Ghostwriter processor", "Java command-line implementation invoked from the bundled runtime")
-
-Rel(cliUser, publicApi, "Uses")
-Rel(cliUser, wrapper, "Invokes as mgw or python -m mgw")
+Rel(cliUser, entryPoint, "Runs")
+Rel(cliUser, publicApi, "Calls")
 Rel(pythonRuntime, publicApi, "Loads")
-Rel(publicApi, wrapper, "Lazily delegates gw(args)")
-Rel(wrapper, javaRuntime, "Starts JVM via JPype")
-Rel(wrapper, runtimeJar, "Adds to JVM class path")
-Rel(javaRuntime, ghostwriter, "Loads and executes")
-Rel(wrapper, ghostwriter, "Forwards arguments and returns result")
+Rel(pythonRuntime, entryPoint, "Executes")
+Rel(entryPoint, wrapper, "Calls gw(args)")
+Rel(publicApi, wrapper, "Lazily delegates gw, gdp, or adw")
+Rel(wrapper, jpype, "Uses")
+Rel(jpype, javaRuntime, "Starts and accesses")
+Rel(wrapper, runtimeJar, "Places on class path")
+Rel(wrapper, mavenResolver, "Resolves optional libs")
+Rel(mavenResolver, mavenRepository, "Downloads artifacts")
+Rel(javaRuntime, runtimeJar, "Loads")
+Rel(wrapper, javaRuntime, "Invokes Java processors and returns results")
 
 SHOW_LEGEND()
 @enduml

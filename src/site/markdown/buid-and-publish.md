@@ -44,11 +44,11 @@ set "PATH=%JAVA_HOME%\bin;%PATH%"
 
 From the project root, first assemble the Java runtime. Maven places
 `ghostwriter.jar` in `src/main/python/mgw/jars`, and the Hatchling wheel
-configuration includes it in the Python package. The release profile also runs
+configuration includes it in the Python package. The `pack` profile also runs
 the Python build; the explicit commands below make both steps clear:
 
 ```bat
-mvn clean package -Prelease
+mvn clean package -Ppack
 cd src\main\python
 python -m build
 ```
