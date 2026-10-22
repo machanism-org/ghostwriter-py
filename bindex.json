@@ -1,0 +1,158 @@
+{
+  "$schema": "https://raw.githubusercontent.com/machanism-org/bindex-core/refs/heads/main/src/main/resources/schema/bindex-schema-v2.json",
+  "id": "org.machanism.machai:ghostwriter-py:1.4.2",
+  "name": "org.machanism.machai:ghostwriter-py",
+  "version": "1.4.2",
+  "description": "Machai Ghostwriter Python Wrapper, distributed to Python users as mgw, is a hybrid Python and Java command-line integration package. It bundles the Machai Ghostwriter Java runtime and exposes lazy Python entry points for running ordinary Ghostwriter commands, processing guidance tags, and executing named Acts. The wrapper validates JAVA_HOME, locates a JVM through JPype, starts that JVM only on the first operation, and places the bundled ghostwriter.jar plus optional user libraries on the Java class path. Python applications can call mgw.gw for argument-oriented Ghostwriter invocation, mgw.gdp for direct guidance scanning, and mgw.adw for Act execution. Guidance and Act calls accept a project directory, paths or matchers, a properties configuration file, optional model selection, and optional Maven coordinates or local JAR paths. Maven coordinates are resolved with jgo. This package targets Python 3.9 or newer and requires a usable Java JDK; its Maven build is compiled for Java 17. It is suitable for Python automation, documentation guidance processing, AI-assisted project workflows, and command-line access to the embedded Ghostwriter processor without manual Java class-path assembly.",
+  "authors": [
+    {
+      "name": "Viktor Tovstyi",
+      "email": "viktor.tovstyi@gmail.com",
+      "website": "https://machanism.org"
+    },
+    {
+      "name": "Machanism.org",
+      "website": "https://machanism.org"
+    }
+  ],
+  "license": "Apache License, Version 2.0",
+  "classification": {
+    "type": "Python library and command-line application",
+    "domains": [
+      "Developer Tools",
+      "Build Automation",
+      "Documentation Processing",
+      "AI-Assisted Development",
+      "Java-Python Integration"
+    ],
+    "languages": [
+      {
+        "name": "Python",
+        "version": "3.9+"
+      },
+      {
+        "name": "Java",
+        "version": "17"
+      }
+    ],
+    "layers": [
+      "Adapters",
+      "Infrastructure"
+    ],
+    "usageContext": [
+      "Python applications that invoke the Machai Ghostwriter processor",
+      "Windows command-line automation with a configured JDK",
+      "Project guidance-tag scanning",
+      "Automated Act workflows",
+      "Documentation and source-processing pipelines"
+    ],
+    "targetEnvironment": [
+      "Python",
+      "Java"
+    ],
+    "integrations": [
+      "JPype",
+      "Maven"
+    ]
+  },
+  "constructors": [],
+  "features": [
+    {
+      "package": "mgw",
+      "name": "gw",
+      "signature": "mgw.gw(args: list[str] | None = None) -> str",
+      "description": "Starts the bundled Java Ghostwriter runtime on demand and forwards Ghostwriter command-line arguments. When args is omitted, the function forwards the current process arguments after the executable name. JAVA_HOME must identify an existing JDK or JVM installation before the first call.",
+      "examples": [
+        {
+          "snippet": "import mgw\nresult = mgw.gw([\"--help\"])\nprint(result)",
+          "description": "Invoke the embedded Ghostwriter command from a Python application and print its help output. Configure JAVA_HOME before running the Python process."
+        }
+      ]
+    },
+    {
+      "package": "mgw",
+      "name": "gdp",
+      "signature": "mgw.gdp(model: str | None = None, project_dir: str | None = None, path: str = \".\", config_file: str = \"gw.properties\", instructions: str | None = None, threads: int | None = None, excludes: list[str] | None = None, non_recursive: bool = False, module_thread_timeout_minutes: int | None = None, libs: list[str] | None = None) -> list[str]",
+      "description": "Processes guidance tags using the Java GuidanceProcessor and returns its report as a Python list. The path may be a relative path, glob, or regular-expression matcher supported by Ghostwriter. Optional local JAR paths and Maven coordinates are resolved before JVM startup.",
+      "examples": [
+        {
+          "snippet": "import mgw\nreport = mgw.gdp(project_dir=\".\", path=\"src\", threads=2)\nfor item in report:\n    print(item)",
+          "description": "Scan the src directory of the current project with two processing threads and iterate over the returned guidance-processing report."
+        }
+      ]
+    },
+    {
+      "package": "mgw",
+      "name": "adw",
+      "signature": "mgw.adw(act: str, model: str | None = None, project_dir: str | None = None, path: str = \".\", config_file: str = \"gw.properties\", acts_location: str | None = None, interactive: bool = False, disable_normal_order: bool = False, libs: list[str] | None = None) -> list[str]",
+      "description": "Executes a non-empty Ghostwriter Act name or Act expression through the Java ActProcessor and returns processor results as a Python list. Callers can select an Act location, project path, configuration file, model, interactive mode, ordering behavior, and additional libraries.",
+      "examples": [
+        {
+          "snippet": "import mgw\nresults = mgw.adw(\"my-act\", project_dir=\".\", path=\"src\")\nfor result in results:\n    print(result)",
+          "description": "Run a named Act against the src directory of the current project and process every returned result."
+        }
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "Install, configure, and run the mgw command on Windows",
+      "steps": [
+        "Install Python 3.9 or newer and a Java 17 JDK.",
+        "In Command Prompt, set JAVA_HOME to the JDK directory and prepend its bin directory to PATH.",
+        "Install the published wrapper with python -m pip install mgw.",
+        "Run mgw --help, or run python -m mgw --help, to invoke the bundled Ghostwriter runtime."
+      ],
+      "commands": [
+        "set \"JAVA_HOME=C:\\Program Files\\Java\\jdk-17\"",
+        "set \"PATH=%JAVA_HOME%\\bin;%PATH%\"",
+        "python -m pip install mgw",
+        "mgw --help"
+      ],
+      "description": "The console script automatically locates the JAR included in the installed mgw package. No separate Java class-path configuration is required."
+    },
+    {
+      "title": "Run guidance processing from Python",
+      "steps": [
+        "Set JAVA_HOME before launching Python.",
+        "Install mgw and create or select the project to scan.",
+        "Call mgw.gdp with the project directory and a source or documentation path.",
+        "Use the returned Python list as the guidance-processing report."
+      ],
+      "snippet": "import mgw\nreport = mgw.gdp(project_dir=\".\", path=\"src\", config_file=\"gw.properties\", threads=2)\nprint(\"\\n\".join(report))",
+      "description": "This scenario invokes the embedded Java GuidanceProcessor while keeping Python as the automation interface."
+    }
+  ],
+  "dependencies": [
+    "org.machanism.machai:ghostwriter:1.4.2",
+    "org.slf4j:slf4j-api:2.0.17",
+    "jpype1:>=1.4.0",
+    "jgo:>=1.0.0"
+  ],
+  "customizations": [
+    {
+      "name": "gdp processor settings",
+      "package": "mgw",
+      "type": "function parameters",
+      "description": "The mgw.gdp operation can be customized with model, config_file, instructions, threads, excludes, non_recursive, module_thread_timeout_minutes, and libs parameters.",
+      "examples": [
+        {
+          "snippet": "import mgw\nreport = mgw.gdp(path=\"src\", excludes=[\"**/generated/**\"], non_recursive=False, libs=[\"com.example:tools:1.0.0\"])",
+          "description": "Configure scan exclusions and resolve an additional Maven library before the JVM starts."
+        }
+      ]
+    },
+    {
+      "name": "adw Act source and execution mode",
+      "package": "mgw",
+      "type": "function parameters",
+      "description": "The mgw.adw operation supports acts_location, interactive, disable_normal_order, model, config_file, and libs parameters to tailor Act discovery and execution.",
+      "examples": [
+        {
+          "snippet": "import mgw\nresults = mgw.adw(\"my-act\", acts_location=\"acts\", interactive=False)",
+          "description": "Load an Act from a selected local Act location and execute it non-interactively."
+        }
+      ]
+    }
+  ]
+}
