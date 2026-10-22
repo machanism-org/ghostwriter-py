@@ -116,12 +116,12 @@ deactivate
 
 python -m venv .venv-pypi
 .venv-pypi\Scripts\activate.bat
-python -m pip install mgw==1.4.2.1
+python -m pip install mgw==1.4.2
 python -c "from mgw import gw; print(gw(['--help']))"
 deactivate
 ```
 
-Replace `1.4.2.1` with the version being released. Successful installation and
+Replace `1.4.2` with the version being released. Successful installation and
 `gw(['--help'])` output verify that Python dependencies, the bundled JAR, JPype,
 and Java runtime discovery all work from the published package.
 
