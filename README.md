@@ -1,6 +1,10 @@
 <!-- @guidance: >>> ${guidances}/readme-content.md
 - Add ![PyPI Version](https://img.shields.io/pypi/v/mgw)
 - Add ![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https://test.pypi.org&style=flat&label=test.pypi)
+- Add **Bindex Badge:** Include this shield *only if* `./bindex.json` exists in the repository:
+    ```markdown
+    [![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/[artifactId]/refs/heads/main/bindex.json)
+    ```
 - Add link to the project site: https://machai.machanism.org/ghostwriter-py/
 -->
 
