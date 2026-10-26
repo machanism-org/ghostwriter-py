@@ -15,7 +15,6 @@
 			<sourceLineNumbersEnabled>false</sourceLineNumbersEnabled>
 			<topBarEnabled>false</topBarEnabled>
 			<sideBarEnabled>true</sideBarEnabled>
-			<profile>pre-release</profile>
 			<gitHub>
 				<projectId>machanism-org/ghostwriter-py</projectId>
 				<ribbonOrientation>right</ribbonOrientation>

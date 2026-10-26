@@ -2,7 +2,6 @@
 This is a python wraper of ghostwriter cli.
 
 - Add [![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/)
-- Add [![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https://test.pypi.org&style=flat&label=test.pypi)](https://test.pypi.org/project/mgw/)
 - Add **Bindex Badge:** Include this shield *only if* `./bindex.json` exists in the repository:
     ```markdown
     [![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/[artifactId]/refs/heads/main/bindex.json)
@@ -16,7 +15,7 @@ This is a python wraper of ghostwriter cli.
 
 # Machai Ghostwriter Python Wrapper (`mgw`)
 
-[![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/) [![Test PyPI Version](https://img.shields.io/pypi/v/mgw?pypiBaseUrl=https://test.pypi.org&style=flat&label=test.pypi)](https://test.pypi.org/project/mgw/) [![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/ghostwriter-py/refs/heads/main/bindex.json)
+[![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/) [![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/ghostwriter-py/refs/heads/main/bindex.json)
 
 ## Introduction
 
