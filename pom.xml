@@ -28,7 +28,7 @@
 
 	<profiles>
 		<profile>
-			<id>pack</id>
+			<id>release</id>
 			<build>
 				<plugins>
 					<plugin>
