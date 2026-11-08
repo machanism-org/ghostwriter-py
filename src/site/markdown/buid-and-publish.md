@@ -20,18 +20,20 @@ Requirements for the output:
 
 ## Prerequisites and tooling
 
-Use Python 3.9 or newer, a JDK compatible with the Maven build (the project targets
+Use Python 3.10 or newer (the wrapper uses runtime union annotations), a JDK compatible with the Maven build (the project targets
 Java 17), and Maven. `build` creates the Python source distribution and wheel;
 `twine` validates and uploads them. Run the following commands from a Windows
-Command Prompt:
+Command Prompt. Code blocks use `.bat` syntax: save them as batch scripts, or
+use `%F` instead of `%%F` when typing a `for` loop interactively. Stop if any
+command fails; do not publish a failed build.
 
 ```bat
 python --version
-mvn --version
+call mvn --version
 python -m pip install --upgrade build twine
 ```
 
-The package depends on `jpype1>=1.4.0`. Ensure Java is discoverable because the
+The package depends on `jpype1>=1.4.0` and `jgo>=1.0.0`. Ensure Java is discoverable because the
 bundled Java runtime is started through JPype. If `JAVA_HOME` is not already set,
 set it to the JDK installation directory (not a JRE):
 
@@ -44,13 +46,16 @@ set "PATH=%JAVA_HOME%\bin;%PATH%"
 
 From the project root, first assemble the Java runtime. Maven places
 `ghostwriter.jar` in `src/main/python/mgw/jars`, and the Hatchling wheel
-configuration includes it in the Python package. The `pack` profile also runs
-the Python build; the explicit commands below make both steps clear:
+configuration includes it in the Python package. The `release` profile normally
+also runs the Python build; skip that execution here to build Python explicitly
+after the JAR. Its clean step removes old distributions and bundled JARs:
 
 ```bat
-mvn clean package -Ppack
+call mvn clean package -Prelease -Dexec.skip=true
+if errorlevel 1 exit /b 1
 cd src\main\python
 python -m build
+if errorlevel 1 exit /b 1
 ```
 
 The resulting files are written to `dist/` (a `.tar.gz` source distribution and a
@@ -60,21 +65,27 @@ The resulting files are written to `dist/` (a `.tar.gz` source distribution and 
 
 Run the following from `src\main\python`. Check the distribution metadata, then
 install the wheel in a clean virtual environment and exercise both the import and
-the bundled runtime:
+the bundled runtime outside the source directory (to avoid importing the checkout):
 
 ```bat
 python -m twine check dist/*
 python -m venv .venv-release
-.venv-release\Scripts\activate.bat
+call .venv-release\Scripts\activate.bat
 python -m pip install --upgrade pip
 for %%F in (dist\*.whl) do python -m pip install "%%F"
+python -m pip check
+mkdir .venv-release\smoke
+pushd .venv-release\smoke
+mgw --help
+python -m mgw --help
 python -c "from mgw import gw; print(gw(['--help']))"
+popd
 ```
 
 Deactivate and remove the temporary environment when testing is complete:
 
 ```bat
-deactivate
+call deactivate
 rmdir /s /q .venv-release
 ```
 
@@ -88,6 +99,7 @@ can provide the token through environment variables:
 set "TWINE_USERNAME=__token__"
 set "TWINE_PASSWORD=PASTE_TESTPYPI_API_TOKEN_HERE"
 python -m twine upload -r testpypi dist/*
+set "TWINE_PASSWORD="
 ```
 
 After confirming the TestPyPI installation works, upload the same version to PyPI:
@@ -96,6 +108,7 @@ After confirming the TestPyPI installation works, upload the same version to PyP
 set "TWINE_USERNAME=__token__"
 set "TWINE_PASSWORD=PASTE_PYPI_API_TOKEN_HERE"
 python -m twine upload dist/*
+set "TWINE_PASSWORD="
 ```
 
 A version already uploaded to either index cannot be overwritten; update the
@@ -103,25 +116,37 @@ version in `pyproject.toml` and rebuild if a release must be corrected.
 
 ## Install and verify
 
-Use an isolated environment for each index. TestPyPI may need the public PyPI
-index as an additional source for dependencies such as JPype1. The pip option is
-spelled `--no-cache-dir` (with two hyphens):
+Run from `src\main\python` and set the version to the release just built. Use an
+isolated environment for each index and test outside the source package directory.
+Install dependencies from PyPI first, then install only `mgw` from TestPyPI;
+this avoids missing dependencies and ambiguous selection across two indexes.
+The pip option is spelled `--no-cache-dir` (with two hyphens), not `-no-cache-dir`:
 
 ```bat
+set "RELEASE_VERSION=1.4.2"
 python -m venv .venv-testpypi
-.venv-testpypi\Scripts\activate.bat
-python -m pip install -U --no-cache-dir -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mgw==1.4.2.1
+call .venv-testpypi\Scripts\activate.bat
+python -m pip install --index-url https://pypi.org/simple/ "jpype1>=1.4.0" "jgo>=1.0.0"
+python -m pip install -U --no-cache-dir -i https://test.pypi.org/simple/ --no-deps mgw==%RELEASE_VERSION%
+python -m pip check
+mkdir .venv-testpypi\smoke
+pushd .venv-testpypi\smoke
 python -c "from mgw import gw; print(gw(['--help']))"
-deactivate
+popd
+call deactivate
 
 python -m venv .venv-pypi
-.venv-pypi\Scripts\activate.bat
-python -m pip install mgw==1.4.2
+call .venv-pypi\Scripts\activate.bat
+python -m pip install --index-url https://pypi.org/simple/ mgw==%RELEASE_VERSION%
+python -m pip check
+mkdir .venv-pypi\smoke
+pushd .venv-pypi\smoke
 python -c "from mgw import gw; print(gw(['--help']))"
-deactivate
+popd
+call deactivate
 ```
 
-Replace `1.4.2` with the version being released. Successful installation and
+Successful installation and
 `gw(['--help'])` output verify that Python dependencies, the bundled JAR, JPype,
 and Java runtime discovery all work from the published package.
 
