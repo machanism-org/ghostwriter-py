@@ -123,7 +123,7 @@ this avoids missing dependencies and ambiguous selection across two indexes.
 The pip option is spelled `--no-cache-dir` (with two hyphens), not `-no-cache-dir`:
 
 ```bat
-set "RELEASE_VERSION=1.4.2"
+set "RELEASE_VERSION=1.4.3"
 python -m venv .venv-testpypi
 call .venv-testpypi\Scripts\activate.bat
 python -m pip install --index-url https://pypi.org/simple/ "jpype1>=1.4.0" "jgo>=1.0.0"

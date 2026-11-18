@@ -1,8 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/machanism-org/bindex-core/refs/heads/main/src/main/resources/schema/bindex-schema-v2.json",
-  "id": "org.machanism.machai:ghostwriter-py:1.4.2",
+  "id": "org.machanism.machai:ghostwriter-py:1.4.3",
   "name": "org.machanism.machai:ghostwriter-py",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Machai Ghostwriter Python Wrapper, distributed to Python users as mgw, is a hybrid Python and Java command-line integration package. It bundles the Machai Ghostwriter Java runtime and exposes lazy Python entry points for running ordinary Ghostwriter commands, processing guidance tags, and executing named Acts. The wrapper validates JAVA_HOME, locates a JVM through JPype, starts that JVM only on the first operation, and places the bundled ghostwriter.jar plus optional user libraries on the Java class path. Python applications can call mgw.gw for argument-oriented Ghostwriter invocation, mgw.gdp for direct guidance scanning, and mgw.adw for Act execution. Guidance and Act calls accept a project directory, paths or matchers, a properties configuration file, optional model selection, and optional Maven coordinates or local JAR paths. Maven coordinates are resolved with jgo. This package targets Python 3.9 or newer and requires a usable Java JDK; its Maven build is compiled for Java 17. It is suitable for Python automation, documentation guidance processing, AI-assisted project workflows, and command-line access to the embedded Ghostwriter processor without manual Java class-path assembly.",
   "authors": [
     {
@@ -124,7 +124,7 @@
     }
   ],
   "dependencies": [
-    "org.machanism.machai:ghostwriter:1.4.2",
+    "org.machanism.machai:ghostwriter:1.4.3",
     "org.slf4j:slf4j-api:2.0.17",
     "jpype1:>=1.4.0",
     "jgo:>=1.0.0"
