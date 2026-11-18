@@ -1,0 +1,143 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.machanism.machai</groupId>
+		<artifactId>machai</artifactId>
+		<version>1.4.3-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>ghostwriter-py</artifactId>
+	<name>Ghostwriter-Py (mgw)</name>
+
+	<!-- @guidance: Summarize the `src/site/markdown/index.md` introduction
+	section and put this conten to the `description` tag.  -->
+	<description>Python wrapper and command-line entry point for the Machai
+		Ghostwriter processor. It bundles the Java runtime with the mgw package,
+		validates JAVA_HOME, starts JPype lazily, and forwards command-line,
+		guidance-processing, and Act-execution requests without requiring manual
+		classpath configuration. The public gw, gdp, and adw operations support
+		Python 3.9 or newer, can resolve local JARs or Maven coordinates, and
+		return processor results as ordinary Python values.</description>
+
+	<properties>
+		<maven.compiler.release>17</maven.compiler.release>
+		<skipPublishing>true</skipPublishing>
+	</properties>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-clean-plugin</artifactId>
+						<version>3.3.2</version>
+						<configuration>
+							<filesets>
+								<fileset>
+									<!-- Directory relative to the project root -->
+									<directory>src/main/python/dist</directory>
+									<includes>
+										<include>**/*</include>
+									</includes>
+								</fileset>
+								<fileset>
+									<directory>src/main/python/mgw/jars</directory>
+									<includes>
+										<include>**/*</include>
+									</includes>
+								</fileset>
+							</filesets>
+						</configuration>
+					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>build-artifact</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<finalName>ghostwriter</finalName>
+									<appendAssemblyId>false</appendAssemblyId>
+									<descriptors>
+										<descriptor>
+											src/assembly/assembly-jar.xml</descriptor>
+									</descriptors>
+									<outputDirectory>src/main/python/mgw/jars</outputDirectory>
+									<archive>
+										<manifest>
+											<mainClass>
+												org.machanism.machai.gw.processor.Ghostwriter</mainClass>
+										</manifest>
+										<manifestEntries>
+											<Class-Path>
+												${plugins-class-path}</Class-Path>
+											<Implementation-Version>
+												${project.version}</Implementation-Version>
+										</manifestEntries>
+									</archive>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>3.6.4</version>
+						<executions>
+							<execution>
+								<configuration>
+									<executable>python</executable>
+									<workingDirectory>src/main/python</workingDirectory>
+									<arguments>
+										<argument>-m</argument>
+										<argument>build</argument>
+									</arguments>
+								</configuration>
+								<id>python_build</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.machanism.machai</groupId>
+			<artifactId>ghostwriter</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>
+			scm:git:https://github.com/machanism-org/ghostwriter-py</connection>
+		<developerConnection>
+			scm:git:https://github.com/machanism-org/ghostwriter-py</developerConnection>
+		<url>https://github.com/machanism-org/ghostwriter-py</url>
+	</scm>
+
+	<issueManagement>
+		<url>https://github.com/machanism-org/bindex-mcp-server/issues</url>
+	</issueManagement>
+</project>
