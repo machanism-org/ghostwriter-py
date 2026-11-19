@@ -28,7 +28,7 @@
 
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>build</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -118,6 +118,12 @@
 			<groupId>org.machanism.machai</groupId>
 			<artifactId>ghostwriter</artifactId>
 			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.machanism.machai</groupId>
+					<artifactId>bindex-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 

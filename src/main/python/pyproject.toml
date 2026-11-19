@@ -7,7 +7,7 @@ mgw = "mgw.__main__:gw"
 
 [project]
 name = "mgw"
-version = "1.4.3"
+version = "1.4.4.1"
 description = "Python wrapper for Machai Ghostwriter"
 readme = "README.md"
 requires-python = ">=3.9"

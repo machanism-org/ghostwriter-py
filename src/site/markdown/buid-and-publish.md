@@ -51,7 +51,7 @@ also runs the Python build; skip that execution here to build Python explicitly
 after the JAR. Its clean step removes old distributions and bundled JARs:
 
 ```bat
-call mvn clean package -Prelease -Dexec.skip=true
+call mvn clean package -Pbuild -Dexec.skip=true
 if errorlevel 1 exit /b 1
 cd src\main\python
 python -m build
@@ -97,18 +97,16 @@ can provide the token through environment variables:
 
 ```bat
 set "TWINE_USERNAME=__token__"
-set "TWINE_PASSWORD=PASTE_TESTPYPI_API_TOKEN_HERE"
+set "TWINE_PASSWORD=pypi-..."
 python -m twine upload -r testpypi dist/*
-set "TWINE_PASSWORD="
 ```
 
 After confirming the TestPyPI installation works, upload the same version to PyPI:
 
 ```bat
 set "TWINE_USERNAME=__token__"
-set "TWINE_PASSWORD=PASTE_PYPI_API_TOKEN_HERE"
+set "TWINE_PASSWORD=pypi-..."
 python -m twine upload dist/*
-set "TWINE_PASSWORD="
 ```
 
 A version already uploaded to either index cannot be overwritten; update the
