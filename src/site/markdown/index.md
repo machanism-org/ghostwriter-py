@@ -1,6 +1,7 @@
 <!-- @guidance: >>> ${guidances}/index-content.md 
 This is a python wraper of ghostwriter cli.
 
+- no maven-central shields required.
 - Add [![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/)
 - Add **Bindex Badge:** Include this shield *only if* `./bindex.json` exists in the repository:
     ```markdown
@@ -8,14 +9,14 @@ This is a python wraper of ghostwriter cli.
     ```
 - Analyze `src/main/python` python project and detailed describe it in this readme file.
 - Each public method should be described with a detailed API. Use multi-line snippet style to show the method signature if it is long.
-- no maven-central shields required.
 - do not show project site url.
 - JAVA_HOME should be defined.
 --> 
 
 # Machai Ghostwriter Python Wrapper (`mgw`)
 
-[![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/) [![Maven Central](https://img.shields.io/maven-central/v/org.machanism.machai/ghostwriter-py.svg)](https://central.sonatype.com/artifact/org.machanism.machai/ghostwriter-py) [![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/ghostwriter-py/refs/heads/main/bindex.json)
+[![PyPI Version](https://img.shields.io/pypi/v/mgw)](https://pypi.org/project/mgw/) 
+[![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/ghostwriter-py/refs/heads/main/bindex.json)
 
 ## Introduction
 
