@@ -22,8 +22,8 @@ System_Ext(mavenRepository, "Maven repository", "Hosts optional Java libraries")
 
 Container_Boundary(mgwPackage, "mgw Python package") {
     Component(publicApi, "Public API", "mgw/__init__.py", "Lazily exposes gw, gdp, and adw without eagerly importing the implementation")
-    Component(entryPoint, "Console/module entry point", "mgw/__main__.py", "Routes mgw and python -m mgw invocations to the Ghostwriter wrapper")
-    Component(wrapper, "Ghostwriter wrapper", "mgw/_ghostwriter.py", "Validates settings, resolves libraries, starts the JVM, and invokes Ghostwriter, GuidanceProcessor, or ActProcessor")
+    Component(entryPoint, "Console/module entry point", "mgw/__main__.py", "Routes mgw and python -m mgw invocations to gw in the Ghostwriter wrapper")
+    Component(wrapper, "Ghostwriter wrapper", "mgw/_ghostwriter.py", "Validates options and JAVA_HOME, resolves local or Maven libraries, starts or reuses the JVM, and invokes Ghostwriter, GuidanceProcessor, or ActProcessor")
     Component(runtimeJar, "Bundled Ghostwriter runtime", "mgw/jars/ghostwriter.jar", "Packaged Java implementation used as the default JVM class path")
 }
 
@@ -31,10 +31,10 @@ Rel(cliUser, entryPoint, "Runs")
 Rel(cliUser, publicApi, "Calls")
 Rel(entryPoint, wrapper, "Calls gw(args)")
 Rel(publicApi, wrapper, "Lazily delegates gw, gdp, or adw")
-Rel(wrapper, jpype, "Uses")
+Rel(wrapper, jpype, "Uses to manage class path and bridge Java calls")
 Rel(jpype, javaRuntime, "Starts and accesses")
 Rel(wrapper, runtimeJar, "Places on class path")
-Rel(wrapper, mavenResolver, "Resolves optional Maven libraries (gdp/adw)")
+Rel(wrapper, mavenResolver, "Resolves optional Maven coordinates for gdp/adw")
 Rel(mavenResolver, mavenRepository, "Downloads artifacts")
 Rel(javaRuntime, runtimeJar, "Loads")
 Rel(wrapper, javaRuntime, "Invokes Java processors and returns results")
